@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>China Benefit & Net Income Calculator</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
+    h1 { text-align: center; }
+    .container { display: flex; flex-wrap: wrap; gap: 20px; }
+    .inputs, .results { flex: 1; min-width: 400px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: 10px; }
+    input, select { width: 100%; padding: 5px; margin-top: 5px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 5px; text-align: right; }
+    th { background-color: #eee; }
+    .benefits-table td:first-child { text-align: left; }
+  </style>
+</head>
+<body>
+  <h1>China Benefit & Net Income Calculator</h1>
+  <div class="container">
+    <div class="inputs">
+      <h2>Input</h2>
+      <label>Base Salary (USD)<input type="number" id="salaryUSD" value="1000"></label>
+      <label>Exchange Rate (USD→RMB)<input type="number" id="rate" value="7.12" step="0.01"></label>
+      <label>Base Salary (RMB)<input type="number" id="salaryRMB" value="7120"></label>
+      <label>City
+        <select id="city">
+          <option value="shanghai">Shanghai</option>
+          <option value="hangzhou">Hangzhou</option>
+        </select>
+      </label>
+      <h3>Social Insurance / Housing Fund Limits</h3>
+      <label>Social Insurance Upper Limit (RMB)<input type="number" id="siUpper" value="37302"></label>
+      <label>Social Insurance Lower Limit (RMB)<input type="number" id="siLower" value="7460"></label>
+      <label>Housing Fund Upper Limit (RMB)<input type="number" id="hfUpper" value="37302"></label>
+      <label>Housing Fund Lower Limit (RMB)<input type="number" id="hfLower" value="7460"></label>
+
+      <h3>Benefit Rates (Employer / Employee)</h3>
+      <table class="benefits-table">
+        <tr><th>Category</th><th>Employer %</th><th>Employee %</th></tr>
+        <tr><td>Pension</td><td><input type="number" id="penE" value="16"></td><td><input type="number" id="penP" value="8"></td></tr>
+        <tr><td>Medical</td><td><input type="number" id="medE" value="10"></td><td><input type="number" id="medP" value="2"></td></tr>
+        <tr><td>Unemployment</td><td><input type="number" id="uneE" value="0.5"></td><td><input type="number" id="uneP" value="0.5"></td></tr>
+        <tr><td>Work Injury</td><td><input type="number" id="injE" value="0.26"></td><td><input type="number" id="injP" value="0"></td></tr>
+        <tr><td>Maternity</td><td><input type="number" id="matE" value="0"></td><td><input type="number" id="matP" value="0"></td></tr>
+        <tr><td>Housing Fund</td><td><input type="number" id="houE" value="7"></td><td><input type="number" id="houP" value="7"></td></tr>
+        <tr><td>Supplementary HF</td><td><input type="number" id="supE" value="2"></td><td><input type="number" id="supP" value="2"></td></tr>
+        <tr><td>Corporate Pension</td><td><input type="number" id="corE" value="8"></td><td><input type="number" id="corP" value="4"></td></tr>
+      </table>
+
+      <label>Commercial Insurance (Employer, RMB/year)<input type="number" id="comE" value="2000"></label>
+    </div>
+
+    <div class="results">
+      <h2>Results</h2>
+      <div id="benefits"></div>
+      <div id="summary"></div>
+      <h3>12-Month Tax Table</h3>
+      <table id="taxTable">
+        <thead>
+          <tr><th>Month</th><th>Cumulative Taxable (¥)</th><th>Rate %</th><th>Quick Deduction</th><th>Tax (¥)</th><th>Net Pay (¥)</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const rateInput = document.getElementById('rate');
+    const salaryUSD = document.getElementById('salaryUSD');
+    const salaryRMB = document.getElementById('salaryRMB');
+
+    function syncCurrency(e){
+      const rate = parseFloat(rateInput.value)||7.12;
+      if(e.target===salaryUSD){ salaryRMB.value=(salaryUSD.value*rate).toFixed(2); }
+      else if(e.target===salaryRMB){ salaryUSD.value=(salaryRMB.value/rate).toFixed(2); }
+      calculate();
+    }
+    rateInput.addEventListener('input', syncCurrency);
+    salaryUSD.addEventListener('input', syncCurrency);
+    salaryRMB.addEventListener('input', syncCurrency);
+
+    const taxBrackets=[
+      {max:36000,rate:0.03,ded:0},
+      {max:144000,rate:0.10,ded:2520},
+      {max:300000,rate:0.20,ded:16920},
+      {max:420000,rate:0.25,ded:31920},
+      {max:660000,rate:0.30,ded:52920},
+      {max:960000,rate:0.35,ded:85920},
+      {max:Infinity,rate:0.45,ded:181920}
+    ];
+
+    const ids=['pen','med','une','inj','mat','hou','sup','cor'];
+
+    function calculate(){
+      const base=parseFloat(salaryRMB.value)||0;
+      const siU=parseFloat(siUpper.value),siL=parseFloat(siLower.value);
+      const hfU=parseFloat(hfUpper.value),hfL=parseFloat(hfLower.value);
+
+      let siBase=Math.min(Math.max(base,siL),siU);
+      let hfBase=Math.min(Math.max(base,hfL),hfU);
+
+      let empE=0, empP=0;
+      let details="<h3>Benefit Calculation</h3><table><tr><th>Category</th><th>Base</th><th>Employer ¥</th><th>Employee ¥</th></tr>";
+      ids.forEach(id=>{
+        const e=document.getElementById(id+'E').value/100;
+        const p=document.getElementById(id+'P').value/100;
+        let b=(id==='hou'||id==='sup')?hfBase:(id==='cor'?base:siBase);
+        const eAmt=b*e;
+        const pAmt=b*p;
+        empE+=eAmt;
+        empP+=pAmt;
+        details+=`<tr><td>${id}</td><td>${b.toFixed(2)}</td><td>${eAmt.toFixed(2)}</td><td>${pAmt.toFixed(2)}</td></tr>`;
+      });
+
+      const comE=parseFloat(document.getElementById('comE').value)||0;
+      empE+=comE/12;
+
+      details+="</table>";
+      document.getElementById('benefits').innerHTML=details;
+
+      const standardDeduction=5000;
+      const monthlyTaxable=Math.max(base-standardDeduction-empP,0);
+
+      let tbody=document.querySelector('#taxTable tbody');
+      tbody.innerHTML='';
+      let prevTax=0;
+      for(let m=1;m<=12;m++){
+        const cum=monthlyTaxable*m;
+        const br=taxBrackets.find(b=>cum<=b.max);
+        const totalTax=cum*br.rate-br.ded;
+        const monthTax=Math.max(totalTax-prevTax,0);
+        prevTax=totalTax;
+        const net=monthlyTaxable-monthTax; // corrected formula
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td>${m}</td><td>${cum.toFixed(2)}</td><td>${(br.rate*100).toFixed(0)}%</td><td>${br.ded}</td><td>${monthTax.toFixed(2)}</td><td>${net.toFixed(2)}</td>`;
+        tbody.appendChild(tr);
+      }
+
+      document.getElementById('summary').innerHTML=
+        `<p><b>Employer Total:</b> ¥${empE.toFixed(2)} / month</p>
+         <p><b>Employee Total:</b> ¥${empP.toFixed(2)} / month</p>
+         <p><b>Monthly Taxable Income:</b> ¥${monthlyTaxable.toFixed(2)}</p>`;
+    }
+
+    document.querySelectorAll('input,select').forEach(el=>el.addEventListener('input',calculate));
+    calculate();
+  </script>
+</body>
+</html>
