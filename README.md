@@ -1,78 +1,135 @@
-# China Benefit & Net Income Calculator / 中国五险一金及净收入计算器
+# 🧮 China Benefit & Net Income Calculator
 
-## Overview / 概述
+# 🇨🇳 中国五险一金及净收入计算器
 
-This HTML calculator allows users to calculate social insurance, housing fund contributions, and net income in China. It supports key cities and provides detailed monthly tax calculations.
+## 📘 Overview / 概述
 
-该HTML计算器用于计算中国五险一金缴费及净收入。支持主要城市，并提供详细的每月个人所得税计算。
+This web tool calculates **employer and employee contributions** to China’s social insurance and housing funds, as well as **net take-home pay** after individual income tax.
+本网页工具可计算中国**企业与员工缴纳的社保与公积金金额**，并计算**员工税后净收入**。
 
----
+It currently supports:
+目前支持以下城市：
 
-## Features / 功能
-
-* Input base salary in USD or RMB; auto-convert between currencies. / 输入月薪（美元或人民币），可自动换算。
-* Select city (Shanghai or Hangzhou). / 选择城市（上海或杭州）。
-* Configure social insurance and housing fund upper/lower limits. / 配置社保和公积金上下限。
-* Configure employer and employee contribution rates for:
-
-  * Pension Insurance / 养老保险
-  * Medical Insurance / 医疗保险
-  * Unemployment Insurance / 失业保险
-  * Work Injury Insurance / 工伤保险
-  * Maternity Insurance / 生育保险
-  * Housing Provident Fund / 住房公积金
-  * Supplementary Housing Fund / 补充公积金
-  * Corporate Pension / 企业年金
-* Input annual commercial insurance cost. / 输入商业保险年缴费用。
-* Automatically calculate benefits, taxable income, monthly tax, and net pay. / 自动计算五险一金缴费、应纳税所得额、每月税额及到手工资。
-* Displays a 12-month cumulative tax table. / 显示12个月累计个人所得税表。
+* Shanghai 上海
+* (Hangzhou 杭州 — coming soon 可后续添加)
 
 ---
 
-## Inputs / 输入项
+## ⚙️ Features / 功能特点
 
-1. Base Salary Monthly (USD) / 月薪（美元）
-2. Exchange Rate USD→RMB / 汇率（美元→人民币）
-3. Base Salary Monthly (RMB) / 月薪（人民币）
-4. City / 城市
-5. Social Insurance Upper Limit / 社保上限
-6. Social Insurance Lower Limit / 社保下限
-7. Housing Fund Upper Limit / 公积金上限
-8. Housing Fund Lower Limit / 公积金下限
-9. Employer Rate for each benefit / 企业缴费比例
-10. Employee Rate for each benefit / 个人缴费比例
-11. Commercial Insurance annual cost (RMB) / 商业保险年缴费用（人民币）
+✅ Automatic conversion between USD and RMB
+自动在美元与人民币之间换算
 
----
+✅ Default city configurations (upper/lower limits, rates)
+城市默认配置（基数上下限、缴费比例）
 
-## Calculation Rules / 计算规则
+✅ Auto-updating benefit calculations when salary changes
+修改月薪时自动刷新计算结果
 
-1. If salary is below lower limit, use lower limit for social insurance or housing fund calculation. / 若月薪低于下限，则按下限计算社保或公积金。
-2. If salary is above upper limit, use upper limit for social insurance or housing fund calculation. / 若月薪高于上限，则按上限计算社保或公积金。
-3. Taxable income = Monthly Salary - Standard Deduction (¥5000) - (Social Insurance + Housing Fund + Corporate Pension). / 应纳税所得额 = 月薪 - 5000 - (五险 + 公积金 + 企业年金)
-4. Employee net take-home pay = Monthly Taxable Income - Monthly Individual Income Tax. / 员工月到手工资 = 月应纳税所得额 - 月个税
-5. Monthly tax table is calculated cumulatively for 12 months using China's annual comprehensive income tax brackets. / 按中国居民综合所得税率表计算12个月累计税额。
+✅ Tooltip notes for each benefit (可选)
+每个险种可添加提示说明
+
+✅ Displays 12-month cumulative individual income tax table
+显示 12 个月个人所得税累计表
 
 ---
 
-## Cities Supported / 支持城市
+## 💡 Inputs / 输入项
 
-* Shanghai / 上海
-* Hangzhou / 杭州
+| English                            | 中文           | Description                         |
+| ---------------------------------- | ------------ | ----------------------------------- |
+| Base Salary Monthly (USD)          | 月薪（美元）       | Can be edited; auto converts to RMB |
+| Exchange Rate (USD→RMB)            | 汇率（美元兑人民币）   | Default 7.12, user can modify       |
+| Base Salary Monthly (RMB)          | 月薪（人民币）      | Auto converts from USD              |
+| City                               | 城市           | Supports Shanghai / Hangzhou        |
+| Social Insurance Upper/Lower Limit | 社保基数上限 / 下限  | User can modify defaults            |
+| Housing Fund Upper/Lower Limit     | 公积金基数上限 / 下限 | User can modify defaults            |
+| Employer & Employee Rates          | 企业 / 个人缴费比例  | Default values for each benefit     |
+| Commercial Insurance               | 商业保险         | Employer annual cost (RMB/year)     |
 
 ---
 
-## How to Use / 使用方法
+## 📊 Benefits / 缴费项目
 
-1. Open `index.html` in a web browser. / 在浏览器中打开 `index.html`
-2. Enter your monthly salary and exchange rate. / 输入月薪及汇率
-3. Select city and adjust any limits or rates if needed. / 选择城市并根据需要调整上下限和缴费比例
-4. Results will update automatically. / 计算结果会自动显示
+| No. | Category                   | 中文名称  | Notes / 说明                            |
+| --- | -------------------------- | ----- | ------------------------------------- |
+| 1   | Pension Insurance          | 养老保险  | Both employer and employee contribute |
+| 2   | Medical Insurance          | 医疗保险  | Includes maternity                    |
+| 3   | Unemployment Insurance     | 失业保险  | Both share                            |
+| 4   | Work Injury Insurance      | 工伤保险  | Employer only                         |
+| 5   | Maternity Insurance        | 生育保险  | Merged into medical                   |
+| 6   | Housing Provident Fund     | 住房公积金 | Mandatory within range                |
+| 7   | Supplementary Housing Fund | 补充公积金 | Optional                              |
+| 8   | Corporate Pension          | 企业年金  | Optional                              |
+| 9   | Commercial Insurance       | 商业保险  | Optional, employer-defined            |
 
 ---
 
-## Notes / 注意事项
+## 📐 Calculation Rules / 计算规则
 
-* Ensure input values are numeric. / 确保输入为数字
-* Commercial insurance is optional; default is ¥2000/year. / 商业保险为可选，默认2000元/年
-* Calculation uses default Shanghai limits; adjust for Hangzhou manually if needed. / 默认使用上海上下限，如需杭州可手动调整
+1. **社保计算 Social Insurance (1–5)**
+
+   * If base < lower limit → use lower limit
+   * If base > upper limit → use upper limit
+
+2. **公积金计算 Housing Fund (6–7)**
+
+   * Same rule: bounded by lower/upper limit
+
+3. **企业年金 (Corporate Pension)** uses actual base salary
+
+4. Automatically recalculates when user inputs base salary or switches city
+
+5. **汇总规则 Summary:**
+
+   * Social Insurance = sum of 1–5
+   * Housing Fund = sum of 6–7
+   * Total Benefits = Employer + Employee parts
+
+---
+
+## 💰 Tax Calculation / 个税计算
+
+**Monthly Taxable Income (月应纳税所得额)**
+= Base Salary − 5000 RMB − (Employee Social Insurance + Housing Fund + Corporate Pension)
+
+**Employee Net Take-home Pay (员工到手收入)**
+= Monthly Taxable Income − Monthly Individual Income Tax Payable
+
+**Individual Income Tax Table (综合所得税率表)**
+
+| 年累计应纳税所得额 (CNY)   | 税率 (%) | 速算扣除数 (¥) |
+| ----------------- | ------ | --------- |
+| 0 – 36,000        | 3%     | 0         |
+| 36,001 – 144,000  | 10%    | 2,520     |
+| 144,001 – 300,000 | 20%    | 16,920    |
+| 300,001 – 420,000 | 25%    | 31,920    |
+| 420,001 – 660,000 | 30%    | 52,920    |
+| 660,001 – 960,000 | 35%    | 85,920    |
+| >960,000          | 45%    | 181,920   |
+
+---
+
+## 🧾 Output / 输出结果
+
+* Detailed benefit breakdown (明细表)
+* Monthly & cumulative tax table (月度与累计个税表)
+* Net monthly income (月到手收入)
+
+---
+
+## 🚀 How to Use / 使用方法
+
+1. Open `index.html` in any browser 打开浏览器访问 `index.html`
+2. Enter your salary (USD or RMB) 输入月薪（美元或人民币）
+3. Adjust city, limits, or rates if needed 调整城市、上下限、比例
+4. View results instantly in the “计算结果” section 实时查看计算结果
+
+---
+
+## 🧩 Future Enhancements / 后续功能
+
+* Add Hangzhou defaults 添加杭州默认配置
+* Add tooltip descriptions for each benefit 险种提示信息
+* API-based live exchange rate 实时汇率获取
+* Data export to CSV 导出计算结果为 CSV

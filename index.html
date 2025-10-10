@@ -40,11 +40,11 @@
       <h3>Benefit Rates (Employer / Employee)</h3>
       <table class="benefits-table">
         <tr><th>Category</th><th>Employer %</th><th>Employee %</th></tr>
-        <tr><td>Pension</td><td><input type="number" id="penE" value="16"></td><td><input type="number" id="penP" value="8"></td></tr>
-        <tr><td>Medical</td><td><input type="number" id="medE" value="10"></td><td><input type="number" id="medP" value="2"></td></tr>
-        <tr><td>Unemployment</td><td><input type="number" id="uneE" value="0.5"></td><td><input type="number" id="uneP" value="0.5"></td></tr>
-        <tr><td>Work Injury</td><td><input type="number" id="injE" value="0.26"></td><td><input type="number" id="injP" value="0"></td></tr>
-        <tr><td>Maternity</td><td><input type="number" id="matE" value="0"></td><td><input type="number" id="matP" value="0"></td></tr>
+        <tr><td>Pension Insurance</td><td><input type="number" id="penE" value="16"></td><td><input type="number" id="penP" value="8"></td></tr>
+        <tr><td>Medical Insurance</td><td><input type="number" id="medE" value="10"></td><td><input type="number" id="medP" value="2"></td></tr>
+        <tr><td>Unemployment Insurance</td><td><input type="number" id="uneE" value="0.5"></td><td><input type="number" id="uneP" value="0.5"></td></tr>
+        <tr><td>Work Injury Insurance</td><td><input type="number" id="injE" value="0.26"></td><td><input type="number" id="injP" value="0"></td></tr>
+        <tr><td>Maternity Insurance</td><td><input type="number" id="matE" value="0"></td><td><input type="number" id="matP" value="0"></td></tr>
         <tr><td>Housing Fund</td><td><input type="number" id="houE" value="7"></td><td><input type="number" id="houP" value="7"></td></tr>
         <tr><td>Supplementary HF</td><td><input type="number" id="supE" value="2"></td><td><input type="number" id="supP" value="2"></td></tr>
         <tr><td>Corporate Pension</td><td><input type="number" id="corE" value="8"></td><td><input type="number" id="corP" value="4"></td></tr>
@@ -133,7 +133,7 @@
         const totalTax=cum*br.rate-br.ded;
         const monthTax=Math.max(totalTax-prevTax,0);
         prevTax=totalTax;
-        const net=monthlyTaxable-monthTax; // corrected formula
+        const net=monthlyTaxable-monthTax;
         const tr=document.createElement('tr');
         tr.innerHTML=`<td>${m}</td><td>${cum.toFixed(2)}</td><td>${(br.rate*100).toFixed(0)}%</td><td>${br.ded}</td><td>${monthTax.toFixed(2)}</td><td>${net.toFixed(2)}</td>`;
         tbody.appendChild(tr);
