@@ -93,6 +93,16 @@
     ];
 
     const ids=['pen','med','une','inj','mat','hou','sup','cor'];
+    const idNames={
+      'pen':'Pension Insurance',
+      'med':'Medical Insurance', 
+      'une':'Unemployment Insurance',
+      'inj':'Work Injury Insurance',
+      'mat':'Maternity Insurance',
+      'hou':'Housing Fund',
+      'sup':'Supplementary HF',
+      'cor':'Corporate Pension'
+    };
 
     function calculate(){
       const base=parseFloat(salaryRMB.value)||0;
@@ -112,7 +122,7 @@
         const pAmt=b*p;
         empE+=eAmt;
         empP+=pAmt;
-        details+=`<tr><td>${id}</td><td>${b.toFixed(2)}</td><td>${eAmt.toFixed(2)}</td><td>${pAmt.toFixed(2)}</td></tr>`;
+        details+=`<tr><td>${idNames[id]}</td><td>${b.toFixed(2)}</td><td>${eAmt.toFixed(2)}</td><td>${pAmt.toFixed(2)}</td></tr>`;
       });
 
       const comE=parseFloat(document.getElementById('comE').value)||0;
