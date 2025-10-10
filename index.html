@@ -70,7 +70,7 @@
       <h3 id="taxTableHeader">12-Month Tax Table</h3>
       <table id="taxTable">
         <thead>
-          <tr><th id="thMonth">Month</th><th id="thCumulative">Cumulative Taxable (¥)</th><th id="thRate">Rate %</th><th id="thQuickDed">Quick Deduction</th><th id="thTax">Tax (¥)</th><th id="thNetPay">Net Pay (¥)</th></tr>
+          <tr><th id="thMonth">Month</th><th id="thCumulative">Cumulative Taxable (¥)</th><th id="thRate">Rate %</th><th id="thQuickDed">Quick Deduction</th><th id="thTax">Tax (¥)</th><th id="thNetPay">Net Pay (¥)</th><th id="thNetPayUSD">Net Pay (USD)</th></tr>
         </thead>
         <tbody></tbody>
       </table>
@@ -292,6 +292,7 @@
         thQuickDed: "Quick Deduction",
         thTax: "Tax (¥)",
         thNetPay: "Net Pay (¥)",
+        thNetPayUSD: "Net Pay (USD)",
         benefitCalcHeader: "Benefit Calculation",
         benefitTableCategory: "Category",
         benefitTableBase: "Base",
@@ -339,6 +340,7 @@
         thQuickDed: "速算扣除数",
         thTax: "应纳税额 (¥)",
         thNetPay: "税后收入 (¥)",
+        thNetPayUSD: "税后收入 (美元)",
         benefitCalcHeader: "福利计算",
         benefitTableCategory: "类别",
         benefitTableBase: "缴费基数",
@@ -425,6 +427,7 @@
       document.getElementById('thQuickDed').innerText = t.thQuickDed;
       document.getElementById('thTax').innerText = t.thTax;
       document.getElementById('thNetPay').innerText = t.thNetPay;
+      document.getElementById('thNetPayUSD').innerText = t.thNetPayUSD;
       
       // Update benefit notes
       updateBenefitNotes();
@@ -539,8 +542,10 @@
       // Get translations for current language
       const t = translations[currentLanguage];
 
+      const rate = parseFloat(rateInput.value)||7.12;
+      
       let empE=0, empP=0;
-      let details=`<h3>${t.benefitCalcHeader}</h3><table><tr><th>${t.benefitTableCategory}</th><th>${t.benefitTableBase}</th><th>${t.benefitTableEmployer}</th><th>${t.benefitTableEmployee}</th></tr>`;
+      let details=`<h3>${t.benefitCalcHeader}</h3><table><tr><th>${t.benefitTableCategory}</th><th>${t.benefitTableBase}</th><th>${t.benefitTableEmployer}</th><th>${t.benefitTableEmployer} (USD)</th><th>${t.benefitTableEmployee}</th><th>${t.benefitTableEmployee} (USD)</th></tr>`;
       ids.forEach(id=>{
         const e=document.getElementById(id+'E').value/100;
         const p=document.getElementById(id+'P').value/100;
@@ -553,7 +558,7 @@
         // Use translated category name
         const categoryName = document.getElementById(idToElementId[id]).innerText;
         
-        details+=`<tr><td>${categoryName}</td><td>${b.toFixed(2)}</td><td>${eAmt.toFixed(2)}</td><td>${pAmt.toFixed(2)}</td></tr>`;
+        details+=`<tr><td>${categoryName}</td><td>${b.toFixed(2)}</td><td>${eAmt.toFixed(2)}</td><td>${(eAmt/rate).toFixed(2)}</td><td>${pAmt.toFixed(2)}</td><td>${(pAmt/rate).toFixed(2)}</td></tr>`;
       });
 
       const comE=parseFloat(document.getElementById('comE').value)||0;
@@ -562,7 +567,7 @@
       
       // Add commercial insurance row to the table
       if(comE > 0){
-        details+=`<tr><td>${t.commercialInsuranceRow}</td><td>${comE.toFixed(2)}/year</td><td>${comEMonthly.toFixed(2)}</td><td>0.00</td></tr>`;
+        details+=`<tr><td>${t.commercialInsuranceRow}</td><td>${comE.toFixed(2)}/year</td><td>${comEMonthly.toFixed(2)}</td><td>${(comEMonthly/rate).toFixed(2)}</td><td>0.00</td><td>0.00</td></tr>`;
       }
 
       details+="</table>";
@@ -582,14 +587,14 @@
         prevTax=totalTax;
         const net=monthlyTaxable-monthTax;
         const tr=document.createElement('tr');
-        tr.innerHTML=`<td>${m}</td><td>${cum.toFixed(2)}</td><td>${(br.rate*100).toFixed(0)}%</td><td>${br.ded}</td><td>${monthTax.toFixed(2)}</td><td>${net.toFixed(2)}</td>`;
+        tr.innerHTML=`<td>${m}</td><td>${cum.toFixed(2)}</td><td>${(br.rate*100).toFixed(0)}%</td><td>${br.ded}</td><td>${monthTax.toFixed(2)}</td><td>${net.toFixed(2)}</td><td>${(net/rate).toFixed(2)}</td>`;
         tbody.appendChild(tr);
       }
 
       document.getElementById('summary').innerHTML=
-        `<p><b>${t.employerTotal}</b> ¥${empE.toFixed(2)} / month</p>
-         <p><b>${t.employeeTotal}</b> ¥${empP.toFixed(2)} / month</p>
-         <p><b>${t.monthlyTaxableIncome}</b> ¥${monthlyTaxable.toFixed(2)}<br/>
+        `<p><b>${t.employerTotal}</b> ¥${empE.toFixed(2)} / month (USD $${(empE/rate).toFixed(2)})</p>
+         <p><b>${t.employeeTotal}</b> ¥${empP.toFixed(2)} / month (USD $${(empP/rate).toFixed(2)})</p>
+         <p><b>${t.monthlyTaxableIncome}</b> ¥${monthlyTaxable.toFixed(2)} (USD $${(monthlyTaxable/rate).toFixed(2)})<br/>
             <small style="color: #666;">${t.taxableFormulaPrefix}${base.toFixed(2)}${t.taxableFormulaMid1}${empP.toFixed(2)}${t.taxableFormulaMid2}${standardDeduction}${t.taxableFormulaSuffix}</small></p>`;
     }
 
