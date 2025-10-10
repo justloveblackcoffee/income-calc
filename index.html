@@ -395,6 +395,13 @@
         <label id="labelCommercial" for="comE">Commercial Insurance (Optional, Employer, RMB/year)</label>
         <input type="number" id="comE" value="2000">
       </div>
+
+      <h3 id="taxDeductionHeader">Tax Deduction Settings</h3>
+      
+      <div class="form-group">
+        <label id="labelCorpPensionDeduction" for="corpPensionDeductionRate">Enterprise Annuity Pre-tax Deduction Rate (%)</label>
+        <input type="number" id="corpPensionDeductionRate" value="67" min="0" max="100" step="1">
+      </div>
     </section>
 
     <section class="results">
@@ -646,9 +653,17 @@
         employeeTotal: "Monthly Employee Total:",
         monthlyTaxableIncome: "Monthly Taxable Income:",
         taxableFormulaPrefix: "(Base Salary ¥",
-        taxableFormulaMid1: " - Employee Benefits ¥",
+        taxableFormulaMid1: " - Deductible Employee Benefits ¥",
         taxableFormulaMid2: " - Standard Deduction ¥",
-        taxableFormulaSuffix: ")"
+        taxableFormulaSuffix: ")",
+        taxDeductionHeader: "Tax Deduction Settings",
+        labelCorpPensionDeduction: "Enterprise Annuity Pre-tax Deduction Rate (%)",
+        employeeBenefitsBreakdown: "Deductible Employee Benefits Breakdown:",
+        corpPensionTotal: "Corporate Pension (Total):",
+        corpPensionDeductible: "Corporate Pension (Deductible):",
+        corpPensionNonDeductible: "Corporate Pension (Non-deductible):",
+        otherEmployeeBenefits: "Other Employee Benefits:",
+        totalEmployeeBenefits: "Total Deductible Employee Benefits:"
       },
       zh: {
         pageTitle: "中国社保公积金及税后收入计算器",
@@ -694,9 +709,17 @@
         employeeTotal: "月度个人合计:",
         monthlyTaxableIncome: "月度应税收入:",
         taxableFormulaPrefix: "(基本工资 ¥",
-        taxableFormulaMid1: " - 个人福利 ¥",
+        taxableFormulaMid1: " - 可扣除的个人福利 ¥",
         taxableFormulaMid2: " - 标准扣除 ¥",
-        taxableFormulaSuffix: ")"
+        taxableFormulaSuffix: ")",
+        taxDeductionHeader: "税前扣除设置",
+        labelCorpPensionDeduction: "个人缴纳企业年金税前扣除比例 (%)",
+        employeeBenefitsBreakdown: "可扣除的个人福利明细:",
+        corpPensionTotal: "企业年金 (总额):",
+        corpPensionDeductible: "企业年金 (可扣除):",
+        corpPensionNonDeductible: "企业年金 (不可扣除):",
+        otherEmployeeBenefits: "其他个人福利:",
+        totalEmployeeBenefits: "可扣除的个人福利合计:"
       }
     };
 
@@ -747,6 +770,8 @@
       document.getElementById('labelHFUpper').childNodes[0].nodeValue = t.labelHFUpper;
       document.getElementById('labelHFLower').childNodes[0].nodeValue = t.labelHFLower;
       document.getElementById('labelCommercial').childNodes[0].nodeValue = t.labelCommercial;
+      document.getElementById('taxDeductionHeader').innerText = t.taxDeductionHeader;
+      document.getElementById('labelCorpPensionDeduction').childNodes[0].nodeValue = t.labelCorpPensionDeduction;
       
       // Update table headers
       document.getElementById('thCategory').innerText = t.thCategory;
@@ -896,6 +921,7 @@
       const rate = parseFloat(rateInput.value)||7.12;
       
       let empE=0, empP=0;
+      let corpPensionEmployeeAmt = 0; // Track corporate pension employee contribution separately
       let details=`<h3>${t.benefitCalcHeader}</h3><table><tr><th>${t.benefitTableCategory}</th><th>${t.benefitTableBase}</th><th>${t.benefitTableEmployer}</th><th>${t.benefitTableEmployer} (USD)</th><th>${t.benefitTableEmployee}</th><th>${t.benefitTableEmployee} (USD)</th></tr>`;
       ids.forEach(id=>{
         const e=document.getElementById(id+'E').value/100;
@@ -906,6 +932,12 @@
         
         empE+=eAmt;
         empP+=pAmt;
+        
+        // Track corporate pension employee contribution
+        if(id === 'cor') {
+          corpPensionEmployeeAmt = pAmt;
+        }
+        
         // Use translated category name
         const categoryName = document.getElementById(idToElementId[id]).innerText;
         
@@ -925,7 +957,15 @@
       document.getElementById('benefits').innerHTML=details;
 
       const standardDeduction=5000;
-      const monthlyTaxable=Math.max(base-standardDeduction-empP,0);
+      
+      // Apply enterprise annuity pre-tax deduction rate
+      const corpPensionDeductionRate = parseFloat(document.getElementById('corpPensionDeductionRate').value) || 67;
+      const corpPensionDeductibleAmt = corpPensionEmployeeAmt * (corpPensionDeductionRate / 100);
+      const corpPensionNonDeductibleAmt = corpPensionEmployeeAmt - corpPensionDeductibleAmt;
+      
+      // Monthly taxable = Base - Standard Deduction - (Employee Benefits - Corp Pension + Corp Pension * Deduction Rate)
+      // Which simplifies to: Base - Standard Deduction - Employee Benefits + Corp Pension * (1 - Deduction Rate)
+      const monthlyTaxable=Math.max(base-standardDeduction-empP+corpPensionNonDeductibleAmt,0);
 
       let tbody=document.querySelector('#taxTable tbody');
       tbody.innerHTML='';
@@ -942,13 +982,27 @@
         tbody.appendChild(tr);
       }
 
+      // Calculate the adjusted employee benefits for display (subtract non-deductible portion)
+      const adjustedEmpP = empP - corpPensionNonDeductibleAmt;
+      
+      // Calculate other employee benefits (excluding corporate pension)
+      const otherEmployeeBenefitsAmt = empP - corpPensionEmployeeAmt;
+      
       document.getElementById('summary').innerHTML=
         `<div class="summary-box">
           <p><b>${t.employerTotal}</b> ¥${formatAmount(empE)} (USD $${formatAmount(empE/rate)})</p>
           <p><b>${t.employeeTotal}</b> ¥${formatAmount(empP)} (USD $${formatAmount(empP/rate)})</p>
           <p><b>${t.monthlyTaxableIncome}</b> ¥${formatAmount(monthlyTaxable)} (USD $${formatAmount(monthlyTaxable/rate)})
-            <small>${t.taxableFormulaPrefix}${formatAmount(base)}${t.taxableFormulaMid1}${formatAmount(empP)}${t.taxableFormulaMid2}${formatAmount(standardDeduction, 0)}${t.taxableFormulaSuffix}</small>
+            <small>${t.taxableFormulaPrefix}${formatAmount(base)}${t.taxableFormulaMid1}${formatAmount(adjustedEmpP)}${t.taxableFormulaMid2}${formatAmount(standardDeduction, 0)}${t.taxableFormulaSuffix}</small>
           </p>
+          <div style="margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 0.5rem; border-left: 3px solid #3b82f6;">
+            <p style="margin-bottom: 0.5rem; font-weight: 600; color: #1e40af;">${t.employeeBenefitsBreakdown}</p>
+            <p style="margin: 0.25rem 0; font-size: 0.9rem;"><b>${t.corpPensionTotal}</b> ¥${formatAmount(corpPensionEmployeeAmt)} (USD $${formatAmount(corpPensionEmployeeAmt/rate)})</p>
+            <p style="margin: 0.25rem 0; font-size: 0.9rem; color: #059669;"><b>${t.corpPensionDeductible}</b> ¥${formatAmount(corpPensionDeductibleAmt)} (USD $${formatAmount(corpPensionDeductibleAmt/rate)}) - ${corpPensionDeductionRate}%</p>
+            <p style="margin: 0.25rem 0; font-size: 0.9rem; color: #dc2626;"><b>${t.corpPensionNonDeductible}</b> ¥${formatAmount(corpPensionNonDeductibleAmt)} (USD $${formatAmount(corpPensionNonDeductibleAmt/rate)}) - ${100-corpPensionDeductionRate}%</p>
+            <p style="margin: 0.25rem 0; font-size: 0.9rem;"><b>${t.otherEmployeeBenefits}</b> ¥${formatAmount(otherEmployeeBenefitsAmt)} (USD $${formatAmount(otherEmployeeBenefitsAmt/rate)})</p>
+            <p style="margin: 0.5rem 0 0 0; font-weight: 600; color: #1e40af; border-top: 1px solid #e5e7eb; padding-top: 0.5rem;"><b>${t.totalEmployeeBenefits}</b> ¥${formatAmount(adjustedEmpP)} (USD $${formatAmount(adjustedEmpP/rate)})</p>
+          </div>
         </div>`;
     }
 
