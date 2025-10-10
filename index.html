@@ -5,77 +5,420 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>China Benefit & Net Income Calculator</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
-    h1 { text-align: center; }
-    .container { display: flex; flex-wrap: wrap; gap: 20px; }
-    .inputs, .results { flex: 1; min-width: 400px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
-    label { display: block; margin-top: 10px; }
-    input, select { width: 100%; padding: 5px; margin-top: 5px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { border: 1px solid #ccc; padding: 5px; text-align: right; }
-    th { background-color: #eee; }
-    .benefits-table td:first-child { text-align: left; }
-    #benefits table td:first-child { text-align: left; }
-    .benefit-note { font-size: 0.85em; color: #666; font-style: italic; }
+    :root {
+      --primary-color: #2563eb;
+      --primary-dark: #1e40af;
+      --secondary-color: #64748b;
+      --background: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text-primary: #0f172a;
+      --text-secondary: #64748b;
+      --success: #10b981;
+      --spacing-xs: 0.5rem;
+      --spacing-sm: 0.75rem;
+      --spacing-md: 1rem;
+      --spacing-lg: 1.5rem;
+      --spacing-xl: 2rem;
+      --radius-sm: 0.375rem;
+      --radius-md: 0.5rem;
+      --radius-lg: 0.75rem;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--background);
+      color: var(--text-primary);
+      line-height: 1.6;
+      padding: var(--spacing-md);
+    }
+
+    header {
+      max-width: 1400px;
+      margin: 0 auto var(--spacing-xl);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--spacing-md);
+    }
+
+    h1 {
+      font-size: clamp(1.5rem, 4vw, 2rem);
+      font-weight: 700;
+      color: var(--primary-color);
+      flex: 1;
+      min-width: 250px;
+    }
+
+    .language-selector {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    main {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr));
+      gap: var(--spacing-lg);
+    }
+
+    section {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      box-shadow: var(--shadow-md);
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: var(--spacing-lg);
+      color: var(--text-primary);
+      padding-bottom: var(--spacing-sm);
+      border-bottom: 2px solid var(--primary-color);
+    }
+
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: var(--spacing-lg) 0 var(--spacing-md);
+      color: var(--text-primary);
+    }
+
+    .form-group {
+      margin-bottom: var(--spacing-md);
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: var(--spacing-xs);
+    }
+
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      background: var(--surface);
+    }
+
+    input[type="number"]:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    input[type="number"]:hover,
+    select:hover {
+      border-color: var(--primary-dark);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: var(--spacing-md);
+      font-size: 0.875rem;
+      overflow-x: auto;
+      display: block;
+    }
+
+    thead {
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+    }
+
+    tbody {
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+    }
+
+    th {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: white;
+      font-weight: 600;
+      padding: var(--spacing-sm);
+      text-align: right;
+      font-size: 0.8rem;
+    }
+
+    th:first-child,
+    td:first-child {
+      text-align: left;
+    }
+
+    td {
+      border: 1px solid var(--border);
+      padding: var(--spacing-sm);
+      text-align: right;
+    }
+
+    tbody tr:hover {
+      background: var(--background);
+    }
+
+    .rate-input-cell {
+      padding: 0.25rem;
+    }
+
+    .rate-input-cell input {
+      padding: 0.35rem 0.5rem;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    .benefit-note {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-style: italic;
+      display: block;
+      margin-top: 0.25rem;
+    }
+
+    .summary-box {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      border-left: 4px solid var(--primary-color);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      margin-top: var(--spacing-md);
+    }
+
+    .summary-box p {
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .summary-box b {
+      color: var(--primary-color);
+    }
+
+    .summary-box small {
+      color: var(--text-secondary);
+      display: block;
+      margin-top: var(--spacing-xs);
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: var(--spacing-sm);
+      }
+
+      section {
+        padding: var(--spacing-md);
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      table {
+        font-size: 0.75rem;
+      }
+
+      th, td {
+        padding: var(--spacing-xs);
+      }
+    }
+
+    @media (max-width: 480px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .language-selector {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
   </style>
 </head>
 <body>
-  <div style="text-align: right; margin-bottom: 10px;">
-    <label>Language / 语言: 
-      <select id="languageSelect" style="width: auto; padding: 5px;">
+  <header>
+    <h1 id="pageTitle">China Benefit & Net Income Calculator</h1>
+    <div class="language-selector">
+      <label for="languageSelect">Language / 语言:</label>
+      <select id="languageSelect">
         <option value="en">English</option>
         <option value="zh">中文</option>
       </select>
-    </label>
-  </div>
-  <h1 id="pageTitle">China Benefit & Net Income Calculator</h1>
-  <div class="container">
-    <div class="inputs">
+    </div>
+  </header>
+  <main>
+    <section class="inputs">
       <h2 id="inputHeader">Input</h2>
-      <label id="labelSalaryUSD">Base Salary (USD)<input type="number" id="salaryUSD" value="1000"></label>
-      <label id="labelExchangeRate">Exchange Rate (USD→RMB)<input type="number" id="rate" value="7.12" step="0.01"></label>
-      <label id="labelSalaryRMB">Base Salary (RMB)<input type="number" id="salaryRMB" value="7120"></label>
-      <label id="labelCity">City
+      
+      <div class="form-group">
+        <label id="labelSalaryUSD" for="salaryUSD">Base Salary (USD)</label>
+        <input type="number" id="salaryUSD" value="1000">
+      </div>
+      
+      <div class="form-group">
+        <label id="labelExchangeRate" for="rate">Exchange Rate (USD→RMB)</label>
+        <input type="number" id="rate" value="7.12" step="0.01">
+      </div>
+      
+      <div class="form-group">
+        <label id="labelSalaryRMB" for="salaryRMB">Base Salary (RMB)</label>
+        <input type="number" id="salaryRMB" value="7120">
+      </div>
+      
+      <div class="form-group">
+        <label id="labelCity" for="city">City</label>
         <select id="city">
           <option value="shanghai">Shanghai / 上海</option>
           <option value="hangzhou">Hangzhou / 杭州</option>
         </select>
-      </label>
+      </div>
+
       <h3 id="limitsHeader">Social Insurance / Housing Fund Limits (2025.7-2026.6)</h3>
-      <label id="labelSIUpper">Social Insurance Upper Limit (RMB)<input type="number" id="siUpper" value="37302"></label>
-      <label id="labelSILower">Social Insurance Lower Limit (RMB)<input type="number" id="siLower" value="7460"></label>
-      <label id="labelHFUpper">Housing Fund Upper Limit (RMB)<input type="number" id="hfUpper" value="37302"></label>
-      <label id="labelHFLower">Housing Fund Lower Limit (RMB)<input type="number" id="hfLower" value="7460"></label>
+      
+      <div class="form-group">
+        <label id="labelSIUpper" for="siUpper">Social Insurance Upper Limit (RMB)</label>
+        <input type="number" id="siUpper" value="37302">
+      </div>
+      
+      <div class="form-group">
+        <label id="labelSILower" for="siLower">Social Insurance Lower Limit (RMB)</label>
+        <input type="number" id="siLower" value="7460">
+      </div>
+      
+      <div class="form-group">
+        <label id="labelHFUpper" for="hfUpper">Housing Fund Upper Limit (RMB)</label>
+        <input type="number" id="hfUpper" value="37302">
+      </div>
+      
+      <div class="form-group">
+        <label id="labelHFLower" for="hfLower">Housing Fund Lower Limit (RMB)</label>
+        <input type="number" id="hfLower" value="7460">
+      </div>
 
       <h3 id="benefitRatesHeader">Benefit Rates (Employer / Employee)</h3>
-      <table class="benefits-table">
-        <tr><th id="thCategory">Category</th><th id="thEmployer">Employer %</th><th id="thEmployee">Employee %</th></tr>
-        <tr><td><span id="tdPension">Pension Insurance</span><br/><span class="benefit-note" id="notePension"></span></td><td><input type="number" id="penE" value="16"></td><td><input type="number" id="penP" value="8"></td></tr>
-        <tr><td><span id="tdMedical">Medical Insurance</span><br/><span class="benefit-note" id="noteMedical"></span></td><td><input type="number" id="medE" value="10"></td><td><input type="number" id="medP" value="2"></td></tr>
-        <tr><td><span id="tdUnemployment">Unemployment Insurance</span><br/><span class="benefit-note" id="noteUnemployment"></span></td><td><input type="number" id="uneE" value="0.5"></td><td><input type="number" id="uneP" value="0.5"></td></tr>
-        <tr><td><span id="tdWorkInjury">Work Injury Insurance</span><br/><span class="benefit-note" id="noteWorkInjury"></span></td><td><input type="number" id="injE" value="0.26"></td><td><input type="number" id="injP" value="0"></td></tr>
-        <tr><td><span id="tdMaternity">Maternity Insurance</span><br/><span class="benefit-note" id="noteMaternity"></span></td><td><input type="number" id="matE" value="0"></td><td><input type="number" id="matP" value="0"></td></tr>
-        <tr><td><span id="tdHousing">Housing Fund</span><br/><span class="benefit-note" id="noteHousing"></span></td><td><input type="number" id="houE" value="7"></td><td><input type="number" id="houP" value="7"></td></tr>
-        <tr><td><span id="tdSupplementary">Supplementary HF (Optional)</span><br/><span class="benefit-note" id="noteSupplementary"></span></td><td><input type="number" id="supE" value="2"></td><td><input type="number" id="supP" value="2"></td></tr>
-        <tr><td><span id="tdCorporate">Corporate Pension (Optional)</span><br/><span class="benefit-note" id="noteCorporate"></span></td><td><input type="number" id="corE" value="8"></td><td><input type="number" id="corP" value="4"></td></tr>
+      <table>
+        <thead>
+          <tr>
+            <th id="thCategory">Category</th>
+            <th id="thEmployer">Employer %</th>
+            <th id="thEmployee">Employee %</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <span id="tdPension">Pension Insurance</span>
+              <span class="benefit-note" id="notePension"></span>
+            </td>
+            <td class="rate-input-cell"><input type="number" id="penE" value="16"></td>
+            <td class="rate-input-cell"><input type="number" id="penP" value="8"></td>
+          </tr>
+          <tr>
+            <td>
+              <span id="tdMedical">Medical Insurance</span>
+              <span class="benefit-note" id="noteMedical"></span>
+            </td>
+            <td class="rate-input-cell"><input type="number" id="medE" value="10"></td>
+            <td class="rate-input-cell"><input type="number" id="medP" value="2"></td>
+          </tr>
+          <tr>
+            <td>
+              <span id="tdUnemployment">Unemployment Insurance</span>
+              <span class="benefit-note" id="noteUnemployment"></span>
+            </td>
+            <td class="rate-input-cell"><input type="number" id="uneE" value="0.5"></td>
+            <td class="rate-input-cell"><input type="number" id="uneP" value="0.5"></td>
+          </tr>
+          <tr>
+            <td>
+              <span id="tdWorkInjury">Work Injury Insurance</span>
+              <span class="benefit-note" id="noteWorkInjury"></span>
+            </td>
+            <td class="rate-input-cell"><input type="number" id="injE" value="0.26"></td>
+            <td class="rate-input-cell"><input type="number" id="injP" value="0"></td>
+          </tr>
+          <tr>
+            <td>
+              <span id="tdMaternity">Maternity Insurance</span>
+              <span class="benefit-note" id="noteMaternity"></span>
+            </td>
+            <td class="rate-input-cell"><input type="number" id="matE" value="0"></td>
+            <td class="rate-input-cell"><input type="number" id="matP" value="0"></td>
+          </tr>
+          <tr>
+            <td>
+              <span id="tdHousing">Housing Fund</span>
+              <span class="benefit-note" id="noteHousing"></span>
+            </td>
+            <td class="rate-input-cell"><input type="number" id="houE" value="7"></td>
+            <td class="rate-input-cell"><input type="number" id="houP" value="7"></td>
+          </tr>
+          <tr>
+            <td>
+              <span id="tdSupplementary">Supplementary HF (Optional)</span>
+              <span class="benefit-note" id="noteSupplementary"></span>
+            </td>
+            <td class="rate-input-cell"><input type="number" id="supE" value="2"></td>
+            <td class="rate-input-cell"><input type="number" id="supP" value="2"></td>
+          </tr>
+          <tr>
+            <td>
+              <span id="tdCorporate">Corporate Pension (Optional)</span>
+              <span class="benefit-note" id="noteCorporate"></span>
+            </td>
+            <td class="rate-input-cell"><input type="number" id="corE" value="8"></td>
+            <td class="rate-input-cell"><input type="number" id="corP" value="4"></td>
+          </tr>
+        </tbody>
       </table>
 
-      <label id="labelCommercial">Commercial Insurance (Optional, Employer, RMB/year)<input type="number" id="comE" value="2000"></label>
-    </div>
+      <div class="form-group">
+        <label id="labelCommercial" for="comE">Commercial Insurance (Optional, Employer, RMB/year)</label>
+        <input type="number" id="comE" value="2000">
+      </div>
+    </section>
 
-    <div class="results">
+    <section class="results">
       <h2 id="resultsHeader">Results</h2>
       <div id="benefits"></div>
       <div id="summary"></div>
+      
       <h3 id="taxTableHeader">12-Month Tax Table</h3>
       <table id="taxTable">
         <thead>
-          <tr><th id="thMonth">Month</th><th id="thCumulative">Cumulative Taxable (¥)</th><th id="thRate">Rate %</th><th id="thQuickDed">Quick Deduction</th><th id="thTax">Tax (¥)</th><th id="thNetPay">Net Pay (¥)</th><th id="thNetPayUSD">Net Pay (USD)</th></tr>
+          <tr>
+            <th id="thMonth">Month</th>
+            <th id="thCumulative">Cumulative Taxable (¥)</th>
+            <th id="thRate">Rate %</th>
+            <th id="thQuickDed">Quick Deduction</th>
+            <th id="thTax">Tax (¥)</th>
+            <th id="thNetPay">Net Pay (¥)</th>
+            <th id="thNetPayUSD">Net Pay (USD)</th>
+          </tr>
         </thead>
         <tbody></tbody>
       </table>
-    </div>
-  </div>
+    </section>
+  </main>
 
   <script>
     const cityConfig = {
@@ -592,10 +935,13 @@
       }
 
       document.getElementById('summary').innerHTML=
-        `<p><b>${t.employerTotal}</b> ¥${empE.toFixed(2)} / month (USD $${(empE/rate).toFixed(2)})</p>
-         <p><b>${t.employeeTotal}</b> ¥${empP.toFixed(2)} / month (USD $${(empP/rate).toFixed(2)})</p>
-         <p><b>${t.monthlyTaxableIncome}</b> ¥${monthlyTaxable.toFixed(2)} (USD $${(monthlyTaxable/rate).toFixed(2)})<br/>
-            <small style="color: #666;">${t.taxableFormulaPrefix}${base.toFixed(2)}${t.taxableFormulaMid1}${empP.toFixed(2)}${t.taxableFormulaMid2}${standardDeduction}${t.taxableFormulaSuffix}</small></p>`;
+        `<div class="summary-box">
+          <p><b>${t.employerTotal}</b> ¥${empE.toFixed(2)} / month (USD $${(empE/rate).toFixed(2)})</p>
+          <p><b>${t.employeeTotal}</b> ¥${empP.toFixed(2)} / month (USD $${(empP/rate).toFixed(2)})</p>
+          <p><b>${t.monthlyTaxableIncome}</b> ¥${monthlyTaxable.toFixed(2)} (USD $${(monthlyTaxable/rate).toFixed(2)})
+            <small>${t.taxableFormulaPrefix}${base.toFixed(2)}${t.taxableFormulaMid1}${empP.toFixed(2)}${t.taxableFormulaMid2}${standardDeduction}${t.taxableFormulaSuffix}</small>
+          </p>
+        </div>`;
     }
 
     document.querySelectorAll('input,select').forEach(el=>el.addEventListener('input',calculate));
