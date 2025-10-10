@@ -642,8 +642,8 @@
         benefitTableEmployer: "Employer ¥",
         benefitTableEmployee: "Employee ¥",
         commercialInsuranceRow: "Commercial Insurance (Optional)",
-        employerTotal: "Employer Total:",
-        employeeTotal: "Employee Total:",
+        employerTotal: "Monthly Employer Total:",
+        employeeTotal: "Monthly Employee Total:",
         monthlyTaxableIncome: "Monthly Taxable Income:",
         taxableFormulaPrefix: "(Base Salary ¥",
         taxableFormulaMid1: " - Employee Benefits ¥",
@@ -690,8 +690,8 @@
         benefitTableEmployer: "单位 ¥",
         benefitTableEmployee: "个人 ¥",
         commercialInsuranceRow: "商业保险 (可选)",
-        employerTotal: "单位合计:",
-        employeeTotal: "个人合计:",
+        employerTotal: "月度单位合计:",
+        employeeTotal: "月度个人合计:",
         monthlyTaxableIncome: "月度应税收入:",
         taxableFormulaPrefix: "(基本工资 ¥",
         taxableFormulaMid1: " - 个人福利 ¥",
@@ -812,22 +812,22 @@
       document.getElementById('hfLower').value = config.meta.housing_fund_base.lower;
       
       // Update benefit rates
-      document.getElementById('penE').value = (config.benefits.pension.employer_rate * 100).toFixed(2);
-      document.getElementById('penP').value = (config.benefits.pension.employee_rate * 100).toFixed(2);
-      document.getElementById('medE').value = (config.benefits.medical.employer_rate * 100).toFixed(2);
-      document.getElementById('medP').value = (config.benefits.medical.employee_rate * 100).toFixed(2);
-      document.getElementById('uneE').value = (config.benefits.unemployment.employer_rate * 100).toFixed(2);
-      document.getElementById('uneP').value = (config.benefits.unemployment.employee_rate * 100).toFixed(2);
-      document.getElementById('injE').value = (config.benefits.work_injury.employer_rate * 100).toFixed(2);
-      document.getElementById('injP').value = (config.benefits.work_injury.employee_rate * 100).toFixed(2);
-      document.getElementById('matE').value = (config.benefits.maternity.employer_rate * 100).toFixed(2);
-      document.getElementById('matP').value = (config.benefits.maternity.employee_rate * 100).toFixed(2);
-      document.getElementById('houE').value = (config.benefits.housing_fund.employer_rate * 100).toFixed(2);
-      document.getElementById('houP').value = (config.benefits.housing_fund.employee_rate * 100).toFixed(2);
-      document.getElementById('supE').value = (config.benefits.supplementary_housing.employer_rate * 100).toFixed(2);
-      document.getElementById('supP').value = (config.benefits.supplementary_housing.employee_rate * 100).toFixed(2);
-      document.getElementById('corE').value = (config.benefits.corporate_pension.employer_rate * 100).toFixed(2);
-      document.getElementById('corP').value = (config.benefits.corporate_pension.employee_rate * 100).toFixed(2);
+      document.getElementById('penE').value = parseFloat((config.benefits.pension.employer_rate * 100).toFixed(2));
+      document.getElementById('penP').value = parseFloat((config.benefits.pension.employee_rate * 100).toFixed(2));
+      document.getElementById('medE').value = parseFloat((config.benefits.medical.employer_rate * 100).toFixed(2));
+      document.getElementById('medP').value = parseFloat((config.benefits.medical.employee_rate * 100).toFixed(2));
+      document.getElementById('uneE').value = parseFloat((config.benefits.unemployment.employer_rate * 100).toFixed(2));
+      document.getElementById('uneP').value = parseFloat((config.benefits.unemployment.employee_rate * 100).toFixed(2));
+      document.getElementById('injE').value = parseFloat((config.benefits.work_injury.employer_rate * 100).toFixed(2));
+      document.getElementById('injP').value = parseFloat((config.benefits.work_injury.employee_rate * 100).toFixed(2));
+      document.getElementById('matE').value = parseFloat((config.benefits.maternity.employer_rate * 100).toFixed(2));
+      document.getElementById('matP').value = parseFloat((config.benefits.maternity.employee_rate * 100).toFixed(2));
+      document.getElementById('houE').value = parseFloat((config.benefits.housing_fund.employer_rate * 100).toFixed(2));
+      document.getElementById('houP').value = parseFloat((config.benefits.housing_fund.employee_rate * 100).toFixed(2));
+      document.getElementById('supE').value = parseFloat((config.benefits.supplementary_housing.employer_rate * 100).toFixed(2));
+      document.getElementById('supP').value = parseFloat((config.benefits.supplementary_housing.employee_rate * 100).toFixed(2));
+      document.getElementById('corE').value = parseFloat((config.benefits.corporate_pension.employer_rate * 100).toFixed(2));
+      document.getElementById('corP').value = parseFloat((config.benefits.corporate_pension.employee_rate * 100).toFixed(2));
       document.getElementById('comE').value = config.benefits.commercial_insurance.employer_paid;
       
       // Update benefit notes
@@ -870,6 +870,14 @@
       'cor':'tdCorporate'
     };
 
+    // Format number with thousand separators
+    function formatAmount(num, decimals = 0) {
+      return num.toLocaleString('en-US', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      });
+    }
+
     function calculate(){
       const base=parseFloat(salaryRMB.value)||0;
       const siU=parseFloat(siUpper.value),siL=parseFloat(siLower.value);
@@ -901,7 +909,7 @@
         // Use translated category name
         const categoryName = document.getElementById(idToElementId[id]).innerText;
         
-        details+=`<tr><td>${categoryName}</td><td>${b.toFixed(2)}</td><td>${eAmt.toFixed(2)}</td><td>${(eAmt/rate).toFixed(2)}</td><td>${pAmt.toFixed(2)}</td><td>${(pAmt/rate).toFixed(2)}</td></tr>`;
+        details+=`<tr><td>${categoryName}</td><td>${formatAmount(b)}</td><td>${formatAmount(eAmt)}</td><td>${formatAmount(eAmt/rate)}</td><td>${formatAmount(pAmt)}</td><td>${formatAmount(pAmt/rate)}</td></tr>`;
       });
 
       const comE=parseFloat(document.getElementById('comE').value)||0;
@@ -910,7 +918,7 @@
       
       // Add commercial insurance row to the table
       if(comE > 0){
-        details+=`<tr><td>${t.commercialInsuranceRow}</td><td>${comE.toFixed(2)}/year</td><td>${comEMonthly.toFixed(2)}</td><td>${(comEMonthly/rate).toFixed(2)}</td><td>0.00</td><td>0.00</td></tr>`;
+        details+=`<tr><td>${t.commercialInsuranceRow}</td><td>${formatAmount(comE)}/year</td><td>${formatAmount(comEMonthly)}</td><td>${formatAmount(comEMonthly/rate)}</td><td>0</td><td>0</td></tr>`;
       }
 
       details+="</table>";
@@ -930,16 +938,16 @@
         prevTax=totalTax;
         const net=monthlyTaxable-monthTax;
         const tr=document.createElement('tr');
-        tr.innerHTML=`<td>${m}</td><td>${cum.toFixed(2)}</td><td>${(br.rate*100).toFixed(0)}%</td><td>${br.ded}</td><td>${monthTax.toFixed(2)}</td><td>${net.toFixed(2)}</td><td>${(net/rate).toFixed(2)}</td>`;
+        tr.innerHTML=`<td>${m}</td><td>${formatAmount(cum)}</td><td>${(br.rate*100).toFixed(0)}%</td><td>${formatAmount(br.ded, 0)}</td><td>${formatAmount(monthTax)}</td><td>${formatAmount(net)}</td><td>${formatAmount(net/rate)}</td>`;
         tbody.appendChild(tr);
       }
 
       document.getElementById('summary').innerHTML=
         `<div class="summary-box">
-          <p><b>${t.employerTotal}</b> ¥${empE.toFixed(2)} / month (USD $${(empE/rate).toFixed(2)})</p>
-          <p><b>${t.employeeTotal}</b> ¥${empP.toFixed(2)} / month (USD $${(empP/rate).toFixed(2)})</p>
-          <p><b>${t.monthlyTaxableIncome}</b> ¥${monthlyTaxable.toFixed(2)} (USD $${(monthlyTaxable/rate).toFixed(2)})
-            <small>${t.taxableFormulaPrefix}${base.toFixed(2)}${t.taxableFormulaMid1}${empP.toFixed(2)}${t.taxableFormulaMid2}${standardDeduction}${t.taxableFormulaSuffix}</small>
+          <p><b>${t.employerTotal}</b> ¥${formatAmount(empE)} (USD $${formatAmount(empE/rate)})</p>
+          <p><b>${t.employeeTotal}</b> ¥${formatAmount(empP)} (USD $${formatAmount(empP/rate)})</p>
+          <p><b>${t.monthlyTaxableIncome}</b> ¥${formatAmount(monthlyTaxable)} (USD $${formatAmount(monthlyTaxable/rate)})
+            <small>${t.taxableFormulaPrefix}${formatAmount(base)}${t.taxableFormulaMid1}${formatAmount(empP)}${t.taxableFormulaMid2}${formatAmount(standardDeduction, 0)}${t.taxableFormulaSuffix}</small>
           </p>
         </div>`;
     }
