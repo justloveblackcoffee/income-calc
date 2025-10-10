@@ -420,7 +420,7 @@
             <th id="thQuickDed">Quick Deduction</th>
             <th id="thTax">Tax (¥)</th>
             <th id="thNetPay">Net Pay (¥)</th>
-            <th id="thNetPayUSD">Net Pay (USD)</th>
+            <th id="thNetPayUSD">Net Pay ($)</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -643,12 +643,12 @@
         thQuickDed: "Quick Deduction",
         thTax: "Tax (¥)",
         thNetPay: "Net Pay (¥)",
-        thNetPayUSD: "Net Pay (USD)",
+        thNetPayUSD: "Net Pay ($)",
         benefitCalcHeader: "Benefit Calculation",
         benefitTableCategory: "Category",
         benefitTableBase: "Base",
-        benefitTableEmployer: "Employer ¥",
-        benefitTableEmployee: "Employee ¥",
+        benefitTableEmployer: "Employer",
+        benefitTableEmployee: "Employee",
         commercialInsuranceRow: "Commercial Insurance (Optional)",
         employerTotal: "Monthly Employer Total:",
         employeeTotal: "Monthly Employee Total:",
@@ -699,12 +699,12 @@
         thQuickDed: "速算扣除数",
         thTax: "应纳税额 (¥)",
         thNetPay: "税后收入 (¥)",
-        thNetPayUSD: "税后收入 (美元)",
+        thNetPayUSD: "税后收入 ($)",
         benefitCalcHeader: "福利计算",
         benefitTableCategory: "类别",
         benefitTableBase: "缴费基数",
-        benefitTableEmployer: "单位 ¥",
-        benefitTableEmployee: "个人 ¥",
+        benefitTableEmployer: "单位",
+        benefitTableEmployee: "个人",
         commercialInsuranceRow: "商业保险 (可选)",
         employerTotal: "月度单位合计:",
         employeeTotal: "月度个人合计:",
@@ -923,7 +923,7 @@
       
       let empE=0, empP=0;
       let corpPensionEmployeeAmt = 0; // Track corporate pension employee contribution separately
-      let details=`<h3>${t.benefitCalcHeader}</h3><table><tr><th>${t.benefitTableCategory}</th><th>${t.benefitTableBase}</th><th>${t.benefitTableEmployer}</th><th>${t.benefitTableEmployer} (USD)</th><th>${t.benefitTableEmployee}</th><th>${t.benefitTableEmployee} (USD)</th></tr>`;
+      let details=`<h3>${t.benefitCalcHeader}</h3><table><tr><th>${t.benefitTableCategory}</th><th>${t.benefitTableBase}</th><th>${t.benefitTableEmployer} (¥)</th><th>${t.benefitTableEmployer} ($)</th><th>${t.benefitTableEmployee} (¥)</th><th>${t.benefitTableEmployee} ($)</th></tr>`;
       ids.forEach(id=>{
         const e=document.getElementById(id+'E').value/100;
         const p=document.getElementById(id+'P').value/100;
@@ -991,18 +991,18 @@
       
       document.getElementById('summary').innerHTML=
         `<div class="summary-box">
-          <p><b>${t.employerTotal}</b> ¥${formatAmount(empE)} (USD $${formatAmount(empE/rate)})</p>
-          <p><b>${t.employeeTotal}</b> ¥${formatAmount(empP)} (USD $${formatAmount(empP/rate)})</p>
-          <p><b>${t.monthlyTaxableIncome}</b> ¥${formatAmount(monthlyTaxable)} (USD $${formatAmount(monthlyTaxable/rate)})
+          <p><b>${t.employerTotal}</b> ¥${formatAmount(empE)} ($${formatAmount(empE/rate)})</p>
+          <p><b>${t.employeeTotal}</b> ¥${formatAmount(empP)} ($${formatAmount(empP/rate)})</p>
+          <p><b>${t.monthlyTaxableIncome}</b> ¥${formatAmount(monthlyTaxable)} ($${formatAmount(monthlyTaxable/rate)})
             <small>${t.taxableFormulaPrefix}${formatAmount(base)}${t.taxableFormulaMid1}${formatAmount(adjustedEmpP)}${t.taxableFormulaMid2}${formatAmount(standardDeduction, 0)}${t.taxableFormulaSuffix}</small>
           </p>
           <div style="margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 0.5rem; border-left: 3px solid #3b82f6;">
             <p style="margin-bottom: 0.5rem; font-weight: 600; color: #1e40af;">${t.employeeBenefitsBreakdown}</p>
-            <p style="margin: 0.25rem 0; font-size: 0.9rem;"><b>${t.corpPensionTotal}</b> ¥${formatAmount(corpPensionEmployeeAmt)} (USD $${formatAmount(corpPensionEmployeeAmt/rate)})</p>
-            <p style="margin: 0.25rem 0; font-size: 0.9rem; color: #059669;"><b>${t.corpPensionDeductible}</b> ¥${formatAmount(corpPensionDeductibleAmt)} (USD $${formatAmount(corpPensionDeductibleAmt/rate)}) - ${corpPensionDeductionRate}%</p>
-            <p style="margin: 0.25rem 0; font-size: 0.9rem; color: #dc2626;"><b>${t.corpPensionNonDeductible}</b> ¥${formatAmount(corpPensionNonDeductibleAmt)} (USD $${formatAmount(corpPensionNonDeductibleAmt/rate)}) - ${100-corpPensionDeductionRate}%</p>
-            <p style="margin: 0.25rem 0; font-size: 0.9rem;"><b>${t.otherEmployeeBenefits}</b> ¥${formatAmount(otherEmployeeBenefitsAmt)} (USD $${formatAmount(otherEmployeeBenefitsAmt/rate)})</p>
-            <p style="margin: 0.5rem 0 0 0; font-weight: 600; color: #1e40af; border-top: 1px solid #e5e7eb; padding-top: 0.5rem;"><b>${t.totalEmployeeBenefits}</b> ¥${formatAmount(adjustedEmpP)} (USD $${formatAmount(adjustedEmpP/rate)})</p>
+            <p style="margin: 0.25rem 0; font-size: 0.9rem;"><b>${t.corpPensionTotal}</b> ¥${formatAmount(corpPensionEmployeeAmt)}</p>
+            <p style="margin: 0.25rem 0; font-size: 0.9rem; color: #059669;"><b>${t.corpPensionDeductible}</b> ¥${formatAmount(corpPensionDeductibleAmt)} - ${corpPensionDeductionRate}%</p>
+            <p style="margin: 0.25rem 0; font-size: 0.9rem; color: #dc2626;"><b>${t.corpPensionNonDeductible}</b> ¥${formatAmount(corpPensionNonDeductibleAmt)} - ${100-corpPensionDeductionRate}%</p>
+            <p style="margin: 0.25rem 0; font-size: 0.9rem;"><b>${t.otherEmployeeBenefits}</b> ¥${formatAmount(otherEmployeeBenefitsAmt)}</p>
+            <p style="margin: 0.5rem 0 0 0; font-weight: 600; color: #1e40af; border-top: 1px solid #e5e7eb; padding-top: 0.5rem;"><b>${t.totalEmployeeBenefits}</b> ¥${formatAmount(adjustedEmpP)} ($${formatAmount(adjustedEmpP/rate)})</p>
           </div>
         </div>`;
     }
