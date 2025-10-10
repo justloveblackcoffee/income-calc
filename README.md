@@ -38,6 +38,12 @@ It currently supports:
 ✅ **Flexible Rate Adjustment** - Customize all benefit rates and limits
 **灵活费率调整** - 可自定义所有福利费率和限制
 
+✅ **Tax Deduction Settings** - Configure Corporate Pension pre-tax deduction rates
+**税前扣除设置** - 配置企业年金税前扣除比例
+
+✅ **Detailed Benefits Breakdown** - Clear visualization of deductible vs non-deductible amounts
+**详细福利明细** - 清晰显示可扣除与不可扣除金额
+
 ---
 
 ## 💡 Inputs / 输入项
@@ -53,6 +59,7 @@ It currently supports:
 | Housing Fund Upper/Lower Limit     | 公积金基数上限 / 下限 | Auto-loaded per city, user adjustable |
 | Employer & Employee Rates          | 企业 / 个人缴费比例  | City-specific defaults, fully customizable |
 | Commercial Insurance               | 商业保险         | Employer annual cost (RMB/year)     |
+| Enterprise Annuity Deduction Rate  | 企业年金税前扣除比例 | Percentage of Corporate Pension deductible (default 67%) |
 
 ---
 
@@ -103,7 +110,12 @@ It currently supports:
 ## 💰 Tax Calculation / 个税计算
 
 **Monthly Taxable Income (月应纳税所得额)**
-= Base Salary − 5000 RMB − (Employee Social Insurance + Housing Fund + Corporate Pension)
+= Base Salary − 5000 RMB − Deductible Employee Benefits
+
+Where **Deductible Employee Benefits** includes:
+- All Employee Social Insurance + Housing Fund (100% deductible)
+- Corporate Pension: Only the deductible portion (default 67% of total Corporate Pension)
+- Non-deductible Corporate Pension portion is added back to taxable income
 
 **Employee Net Take-home Pay (员工到手收入)**
 = Monthly Taxable Income − Monthly Individual Income Tax Payable
@@ -127,6 +139,12 @@ It currently supports:
 * **Bilingual benefit breakdown** with detailed calculations
 **双语福利明细表**，包含详细计算过程
 
+* **Detailed Employee Benefits Breakdown** showing deductible vs non-deductible amounts
+**详细个人福利明细**，显示可扣除与不可扣除金额
+
+* **Corporate Pension Deduction Visualization** with clear percentage breakdown
+**企业年金扣除明细**，清晰显示扣除比例
+
 * **12-month progressive tax table** showing cumulative tax brackets
 **12个月累进个税表**，显示累计税率档次
 
@@ -135,6 +153,24 @@ It currently supports:
 
 * **Employer vs Employee cost breakdown**
 **企业与个人成本明细**
+
+---
+
+## ⚙️ Tax Deduction Settings / 税前扣除设置
+
+### Corporate Pension Deduction / 企业年金扣除
+
+The calculator now includes **Tax Deduction Settings** that allow you to configure how much of the Corporate Pension (企业年金) employee contribution can be deducted from taxable income.
+
+**Default Setting**: 67% of Corporate Pension is deductible
+**默认设置**: 67%的企业年金可税前扣除
+
+**How it works:**
+1. **Total Corporate Pension**: Full employee contribution amount
+2. **Deductible Portion**: 67% of total (default, adjustable)
+3. **Non-deductible Portion**: 33% of total (added back to taxable income)
+
+**Formula**: Monthly Taxable Income = Base Salary - Standard Deduction - (Other Employee Benefits + Deductible Corporate Pension Portion)
 
 ---
 
