@@ -276,12 +276,33 @@
       </div>
       
       <div class="form-group">
-        <label id="labelExchangeRate" for="rate">Exchange Rate (USD→RMB)</label>
-        <input type="number" id="rate" value="7.12" step="0.01">
+        <label id="labelExchangeRate" for="rate">Exchange Rate (USD→CNY)</label>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <input type="number" id="rate" value="7.12" step="0.01" style="flex: 1;">
+          <button id="refreshRateBtn" type="button" style="
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 0.4rem 0.6rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.8rem;
+            min-width: 2.5rem;
+            justify-content: center;
+          " onmouseover="this.style.background='var(--primary-dark)'" onmouseout="this.style.background='var(--primary-color)'">
+            <span id="refreshIcon">🔄</span>
+            <span id="refreshText" style="font-size: 0.7rem;">Refresh</span>
+          </button>
+        </div>
+        <small id="rateStatus" style="color: var(--text-secondary); font-size: 0.7rem; margin-top: 0.25rem; display: block;"></small>
       </div>
       
       <div class="form-group">
-        <label id="labelSalaryRMB" for="salaryRMB">Base Salary (RMB)</label>
+        <label id="labelSalaryRMB" for="salaryRMB">Base Salary (CNY)</label>
         <input type="number" id="salaryRMB" value="100000">
       </div>
       
@@ -296,22 +317,22 @@
       <h3 id="limitsHeader">Social Insurance / Housing Fund Limits (2025.7-2026.6)</h3>
       
       <div class="form-group">
-        <label id="labelSIUpper" for="siUpper">Social Insurance Upper Limit (RMB)</label>
+        <label id="labelSIUpper" for="siUpper">Social Insurance Upper Limit (CNY)</label>
         <input type="number" id="siUpper" value="37302">
       </div>
       
       <div class="form-group">
-        <label id="labelSILower" for="siLower">Social Insurance Lower Limit (RMB)</label>
+        <label id="labelSILower" for="siLower">Social Insurance Lower Limit (CNY)</label>
         <input type="number" id="siLower" value="7460">
       </div>
       
       <div class="form-group">
-        <label id="labelHFUpper" for="hfUpper">Housing Fund Upper Limit (RMB)</label>
+        <label id="labelHFUpper" for="hfUpper">Housing Fund Upper Limit (CNY)</label>
         <input type="number" id="hfUpper" value="37302">
       </div>
       
       <div class="form-group">
-        <label id="labelHFLower" for="hfLower">Housing Fund Lower Limit (RMB)</label>
+        <label id="labelHFLower" for="hfLower">Housing Fund Lower Limit (CNY)</label>
         <input type="number" id="hfLower" value="7460">
       </div>
 
@@ -393,7 +414,7 @@
       </table>
 
       <div class="form-group">
-        <label id="labelCommercial" for="comE">Commercial Insurance (Optional, Employer, RMB/year)</label>
+        <label id="labelCommercial" for="comE">Commercial Insurance (Optional, Employer, CNY/year)</label>
         <input type="number" id="comE" value="2000">
       </div>
 
@@ -615,14 +636,14 @@
         inputHeader: "Input",
         resultsHeader: "Results",
         labelSalaryUSD: "Base Salary (USD)",
-        labelExchangeRate: "Exchange Rate (USD→RMB)",
-        labelSalaryRMB: "Base Salary (RMB)",
+        labelExchangeRate: "Exchange Rate (USD→CNY)",
+        labelSalaryRMB: "Base Salary (CNY)",
         labelCity: "City",
         limitsHeader: "Social Insurance / Housing Fund Limits (2025.7-2026.6)",
-        labelSIUpper: "Social Insurance Upper Limit (RMB)",
-        labelSILower: "Social Insurance Lower Limit (RMB)",
-        labelHFUpper: "Housing Fund Upper Limit (RMB)",
-        labelHFLower: "Housing Fund Lower Limit (RMB)",
+        labelSIUpper: "Social Insurance Upper Limit (CNY)",
+        labelSILower: "Social Insurance Lower Limit (CNY)",
+        labelHFUpper: "Housing Fund Upper Limit (CNY)",
+        labelHFLower: "Housing Fund Lower Limit (CNY)",
         benefitRatesHeader: "Benefit Rates (Employer / Employee)",
         thCategory: "Category",
         thEmployer: "Employer %",
@@ -635,7 +656,7 @@
         tdHousing: "Housing Fund",
         tdSupplementary: "Supplementary HF (Optional)",
         tdCorporate: "Corporate Pension (Optional)",
-        labelCommercial: "Commercial Insurance (Optional, Employer, RMB/year)",
+        labelCommercial: "Commercial Insurance (Optional, Employer, CNY/year)",
         taxTableHeader: "12-Month Tax Table",
         thMonth: "Month",
         thCumulative: "Cumulative Taxable (¥)",
@@ -664,21 +685,22 @@
         corpPensionDeductible: "Corporate Pension (Deductible):",
         corpPensionNonDeductible: "Corporate Pension (Non-deductible):",
         otherEmployeeBenefits: "Other Employee Benefits:",
-        totalEmployeeBenefits: "Total Deductible Employee Benefits:"
+        totalEmployeeBenefits: "Total Deductible Employee Benefits:",
+        refreshRate: "Refresh"
       },
       zh: {
         pageTitle: "中国社保公积金及税后收入计算器",
         inputHeader: "输入",
         resultsHeader: "结果",
         labelSalaryUSD: "基本工资 (美元)",
-        labelExchangeRate: "汇率 (USD→RMB)",
-        labelSalaryRMB: "基本工资 (人民币)",
+        labelExchangeRate: "汇率 (USD→CNY)",
+        labelSalaryRMB: "基本工资 (CNY)",
         labelCity: "城市",
         limitsHeader: "社保 / 公积金缴费基数限制 (2025.7-2026.6)",
-        labelSIUpper: "社保缴费基数上限 (人民币)",
-        labelSILower: "社保缴费基数下限 (人民币)",
-        labelHFUpper: "公积金缴费基数上限 (人民币)",
-        labelHFLower: "公积金缴费基数下限 (人民币)",
+        labelSIUpper: "社保缴费基数上限 (CNY)",
+        labelSILower: "社保缴费基数下限 (CNY)",
+        labelHFUpper: "公积金缴费基数上限 (CNY)",
+        labelHFLower: "公积金缴费基数下限 (CNY)",
         benefitRatesHeader: "福利缴纳比例 (单位 / 个人)",
         thCategory: "类别",
         thEmployer: "单位 %",
@@ -691,7 +713,7 @@
         tdHousing: "住房公积金",
         tdSupplementary: "补充公积金 (可选)",
         tdCorporate: "企业年金 (可选)",
-        labelCommercial: "商业保险 (可选，单位，人民币/年)",
+        labelCommercial: "商业保险 (可选，单位，CNY/年)",
         taxTableHeader: "12个月税额表",
         thMonth: "月份",
         thCumulative: "累计应税收入 (¥)",
@@ -720,7 +742,8 @@
         corpPensionDeductible: "企业年金 (可扣除):",
         corpPensionNonDeductible: "企业年金 (不可扣除):",
         otherEmployeeBenefits: "其他个人福利:",
-        totalEmployeeBenefits: "可扣除的个人福利合计:"
+        totalEmployeeBenefits: "可扣除的个人福利合计:",
+        refreshRate: "刷新"
       }
     };
 
@@ -801,6 +824,9 @@
       // Update benefit notes
       updateBenefitNotes();
       
+      // Update refresh button text
+      document.getElementById('refreshText').innerText = t.refreshRate;
+      
       // Recalculate to update dynamic content
       calculate();
     }
@@ -813,8 +839,16 @@
 
     function syncCurrency(e){
       const rate = parseFloat(rateInput.value)||7.12;
-      if(e.target===salaryUSD){ salaryRMB.value=(salaryUSD.value*rate).toFixed(2); }
-      else if(e.target===salaryRMB){ salaryUSD.value=(salaryRMB.value/rate).toFixed(2); }
+      if(e.target===salaryUSD){ 
+        salaryRMB.value=(salaryUSD.value*rate).toFixed(2); 
+      }
+      else if(e.target===salaryRMB){ 
+        salaryUSD.value=(salaryRMB.value/rate).toFixed(2); 
+      }
+      else if(e.target===rateInput){
+        // When exchange rate changes, update CNY salary based on current USD salary
+        salaryRMB.value=(salaryUSD.value*rate).toFixed(2);
+      }
       calculate();
     }
     rateInput.addEventListener('input', syncCurrency);
@@ -1008,6 +1042,96 @@
     }
 
     document.querySelectorAll('input,select').forEach(el=>el.addEventListener('input',calculate));
+    
+    // Exchange rate functionality
+    const refreshRateBtn = document.getElementById('refreshRateBtn');
+    const refreshIcon = document.getElementById('refreshIcon');
+    const refreshText = document.getElementById('refreshText');
+    const rateStatus = document.getElementById('rateStatus');
+    
+    // Function to fetch exchange rate
+    async function fetchExchangeRate() {
+      try {
+        setLoadingState(true);
+        rateStatus.textContent = 'Loading exchange rate...';
+        
+        // Try multiple APIs for better reliability
+        const apis = [
+          'https://api.exchangerate-api.com/v4/latest/USD',
+          'https://api.fixer.io/latest?base=USD&symbols=CNY',
+          'https://api.currencyapi.com/v3/latest?apikey=free&currencies=CNY&base_currency=USD'
+        ];
+        
+        for (const apiUrl of apis) {
+          try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) throw new Error('API error');
+            
+            const data = await response.json();
+            let rate = null;
+            
+            // Parse different API response formats
+            if (data.rates && data.rates.CNY) {
+              rate = data.rates.CNY;
+            } else if (data.data && data.data.CNY) {
+              rate = data.data.CNY.value;
+            }
+            
+            if (rate && rate > 0) {
+              rateInput.value = parseFloat(rate.toFixed(4));
+              rateStatus.textContent = `Updated: ${new Date().toLocaleTimeString()}`;
+              rateStatus.style.color = 'var(--success)';
+              // Trigger currency sync to update CNY salary based on current USD salary
+              syncCurrency({ target: rateInput });
+              return;
+            }
+          } catch (error) {
+            console.log(`API ${apiUrl} failed:`, error);
+            continue;
+          }
+        }
+        
+        throw new Error('All APIs failed');
+        
+      } catch (error) {
+        console.error('Failed to fetch exchange rate:', error);
+        rateStatus.textContent = 'Failed to load rate. Using default.';
+        rateStatus.style.color = 'var(--text-secondary)';
+      } finally {
+        setLoadingState(false);
+      }
+    }
+    
+    // Function to set loading state
+    function setLoadingState(loading) {
+      if (loading) {
+        refreshIcon.textContent = '⏳';
+        refreshIcon.style.animation = 'spin 1s linear infinite';
+        refreshRateBtn.disabled = true;
+        refreshRateBtn.style.opacity = '0.7';
+      } else {
+        refreshIcon.textContent = '🔄';
+        refreshIcon.style.animation = 'none';
+        refreshRateBtn.disabled = false;
+        refreshRateBtn.style.opacity = '1';
+      }
+    }
+    
+    // Add CSS animation for loading spinner
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(style);
+    
+    // Event listener for refresh button
+    refreshRateBtn.addEventListener('click', fetchExchangeRate);
+    
+    // Load exchange rate on page load
+    fetchExchangeRate();
     
     // Load initial city config
     loadCityConfig();
