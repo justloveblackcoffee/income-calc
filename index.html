@@ -272,7 +272,7 @@
       
       <div class="form-group">
         <label id="labelSalaryUSD" for="salaryUSD">Base Salary (USD)</label>
-        <input type="number" id="salaryUSD" value="14044.94">
+        <input type="number" id="salaryUSD" value="10000">
       </div>
       
       <div class="form-group">
@@ -303,7 +303,7 @@
       
       <div class="form-group">
         <label id="labelSalaryRMB" for="salaryRMB">Base Salary (CNY)</label>
-        <input type="number" id="salaryRMB" value="100000">
+        <input type="number" id="salaryRMB" value="0">
       </div>
       
       <div class="form-group">
@@ -666,14 +666,12 @@
         thNetPay: "Net Pay (¥)",
         thNetPayUSD: "Net Pay ($)",
         thTotal: "Total",
-        benefitCalcHeader: "Benefit Calculation",
+        benefitCalcHeader: "Monthly Benefit Calculation",
         benefitTableCategory: "Category",
         benefitTableBase: "Base",
         benefitTableEmployer: "Employer",
         benefitTableEmployee: "Employee",
         commercialInsuranceRow: "Commercial Insurance (Optional)",
-        employerTotal: "Monthly Employer Total:",
-        employeeTotal: "Monthly Employee Total:",
         monthlyTaxableIncome: "Monthly Taxable Income:",
         taxableFormulaPrefix: "(Base Salary ¥",
         taxableFormulaMid1: " - Deductible Employee Benefits ¥",
@@ -724,14 +722,12 @@
         thNetPay: "税后收入 (¥)",
         thNetPayUSD: "税后收入 ($)",
         thTotal: "总计",
-        benefitCalcHeader: "福利计算",
+        benefitCalcHeader: "月度福利计算",
         benefitTableCategory: "类别",
         benefitTableBase: "缴费基数",
         benefitTableEmployer: "单位",
         benefitTableEmployee: "个人",
         commercialInsuranceRow: "商业保险 (可选)",
-        employerTotal: "月度单位合计:",
-        employeeTotal: "月度个人合计:",
         monthlyTaxableIncome: "月度应税收入:",
         taxableFormulaPrefix: "(基本工资 ¥",
         taxableFormulaMid1: " - 可扣除的个人福利 ¥",
@@ -1041,8 +1037,6 @@
       
       document.getElementById('summary').innerHTML=
         `<div class="summary-box">
-          <p><b>${t.employerTotal}</b> ¥${formatAmount(empE)} ($${formatAmount(empE/rate)})</p>
-          <p><b>${t.employeeTotal}</b> ¥${formatAmount(empP)} ($${formatAmount(empP/rate)})</p>
           <p><b>${t.monthlyTaxableIncome}</b> ¥${formatAmount(monthlyTaxable)} ($${formatAmount(monthlyTaxable/rate)})
             <small>${t.taxableFormulaPrefix}${formatAmount(base)}${t.taxableFormulaMid1}${formatAmount(adjustedEmpP)}${t.taxableFormulaMid2}${formatAmount(standardDeduction, 0)}${t.taxableFormulaSuffix}</small>
           </p>
