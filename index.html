@@ -665,6 +665,7 @@
         thTax: "Tax (¥)",
         thNetPay: "Net Pay (¥)",
         thNetPayUSD: "Net Pay ($)",
+        thTotal: "Total",
         benefitCalcHeader: "Benefit Calculation",
         benefitTableCategory: "Category",
         benefitTableBase: "Base",
@@ -722,6 +723,7 @@
         thTax: "应纳税额 (¥)",
         thNetPay: "税后收入 (¥)",
         thNetPayUSD: "税后收入 ($)",
+        thTotal: "总计",
         benefitCalcHeader: "福利计算",
         benefitTableCategory: "类别",
         benefitTableBase: "缴费基数",
@@ -988,6 +990,9 @@
         details+=`<tr><td>${t.commercialInsuranceRow}</td><td>${formatAmount(comE)}/year</td><td>${formatAmount(comEMonthly)}</td><td>${formatAmount(comEMonthly/rate)}</td><td>0</td><td>0</td></tr>`;
       }
 
+      // Add total row
+      details+=`<tr style="font-weight: bold; background-color: #f8fafc;"><td><b>${t.thTotal}</b></td><td></td><td><b>${formatAmount(empE)}</b></td><td><b>${formatAmount(empE/rate)}</b></td><td><b>${formatAmount(empP)}</b></td><td><b>${formatAmount(empP/rate)}</b></td></tr>`;
+
       details+="</table>";
       document.getElementById('benefits').innerHTML=details;
 
@@ -1005,6 +1010,8 @@
       let tbody=document.querySelector('#taxTable tbody');
       tbody.innerHTML='';
       let prevTax=0;
+      let totalTaxAmount=0;
+      let totalNetPayAmount=0;
       for(let m=1;m<=12;m++){
         const cum=monthlyTaxable*m;
         const br=taxBrackets.find(b=>cum<=b.max);
@@ -1012,10 +1019,19 @@
         const monthTax=Math.max(totalTax-prevTax,0);
         prevTax=totalTax;
         const net=monthlyTaxable-monthTax;
+        totalTaxAmount+=monthTax;
+        totalNetPayAmount+=net;
         const tr=document.createElement('tr');
         tr.innerHTML=`<td>${m}</td><td>${formatAmount(cum)}</td><td>${(br.rate*100).toFixed(0)}%</td><td>${formatAmount(br.ded, 0)}</td><td>${formatAmount(monthTax)}</td><td>${formatAmount(net)}</td><td>${formatAmount(net/rate)}</td>`;
         tbody.appendChild(tr);
       }
+      
+      // Add total row
+      const totalRow=document.createElement('tr');
+      totalRow.style.fontWeight='bold';
+      totalRow.style.backgroundColor='#f8fafc';
+      totalRow.innerHTML=`<td><b>${t.thTotal}</b></td><td></td><td></td><td></td><td><b>${formatAmount(totalTaxAmount)}</b></td><td><b>${formatAmount(totalNetPayAmount)}</b></td><td><b>${formatAmount(totalNetPayAmount/rate)}</b></td>`;
+      tbody.appendChild(totalRow);
 
       // Calculate the adjusted employee benefits for display (subtract non-deductible portion)
       const adjustedEmpP = empP - corpPensionNonDeductibleAmt;
@@ -1079,7 +1095,7 @@
             
             if (rate && rate > 0) {
               rateInput.value = parseFloat(rate.toFixed(4));
-              rateStatus.textContent = `Updated: ${new Date().toLocaleTimeString()}`;
+              rateStatus.textContent = `Updated: ${new Date().toLocaleString()}`;
               rateStatus.style.color = 'var(--success)';
               // Trigger currency sync to update CNY salary based on current USD salary
               syncCurrency({ target: rateInput });
