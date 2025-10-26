@@ -10,6 +10,7 @@ This web application calculates **employer and employee contributions** to China
 
 ### Currently Supported Cities
 * **Shanghai** (2025 rates)
+* **Shanghai Flexible Employment** (2025 rates)
 * **Hangzhou** (2025 rates)
 
 ---
@@ -36,7 +37,7 @@ This web application calculates **employer and employee contributions** to China
 | **Base Salary Monthly (USD)** | Can be edited; auto converts to RMB |
 | **Exchange Rate (USD→RMB)** | Default 7.12, user can modify |
 | **Base Salary Monthly (RMB)** | Auto converts from USD |
-| **City** | Shanghai / Hangzhou with 2025 rates |
+| **City** | Shanghai / Shanghai Flexible Employment / Hangzhou with 2025 rates |
 | **Social Insurance Upper/Lower Limit** | Auto-loaded per city, user adjustable |
 | **Housing Fund Upper/Lower Limit** | Auto-loaded per city, user adjustable |
 | **Employer & Employee Rates** | City-specific defaults, fully customizable |
@@ -158,7 +159,7 @@ Monthly Taxable Income = Base Salary - Standard Deduction - (Other Employee Bene
 1. **Open `index.html`** in any modern browser
 2. **Select language** (English/中文) from the top-right dropdown
 3. **Enter salary** in USD or RMB (auto-converts)
-4. **Choose city** (Shanghai/Hangzhou) for 2025 rates
+4. **Choose city** (Shanghai/Shanghai Flexible Employment/Hangzhou) for 2025 rates
 5. **Customize rates/limits** if needed (optional)
 6. **View results** in real-time as you type
 
@@ -172,6 +173,13 @@ Monthly Taxable Income = Base Salary - Standard Deduction - (Other Employee Bene
 - **Housing Fund Rate**: 7% (5%-7% range)
 - **Supplementary HF**: Available (1%-6%)
 - **Commercial Insurance**: ¥2,000/year default
+
+### Shanghai Flexible Employment (2025)
+- **Social Insurance Base**: ¥7,460 - ¥7,460 (fixed at minimum)
+- **Housing Fund Base**: ¥2,690 - ¥37,302
+- **Employee Rates**: Pension 20%, Medical 10%, Housing Fund 24%
+- **Employer Rates**: All 0% (self-employed)
+- **Other Benefits**: Not applicable for flexible employment
 
 ### Hangzhou (2025)
 - **Social Insurance Base**: ¥4,986 - ¥25,299
@@ -205,6 +213,7 @@ Monthly Taxable Income = Base Salary - Standard Deduction - (Other Employee Bene
 
 ### 目前支持的城市
 * **上海** (2025年费率)
+* **上海灵活就业** (2025年费率)
 * **杭州** (2025年费率)
 
 ---
@@ -231,7 +240,7 @@ Monthly Taxable Income = Base Salary - Standard Deduction - (Other Employee Bene
 | **月薪（美元）** | 可编辑；自动转换为人民币 |
 | **汇率（美元兑人民币）** | 默认7.12，用户可修改 |
 | **月薪（人民币）** | 从美元自动转换 |
-| **城市** | 上海/杭州，使用2025年费率 |
+| **城市** | 上海/上海灵活就业/杭州，使用2025年费率 |
 | **社保基数上限/下限** | 按城市自动加载，用户可调整 |
 | **公积金基数上限/下限** | 按城市自动加载，用户可调整 |
 | **企业/个人缴费比例** | 城市特定默认值，完全可自定义 |
@@ -353,7 +362,7 @@ Monthly Taxable Income = Base Salary - Standard Deduction - (Other Employee Bene
 1. **打开浏览器访问** `index.html`
 2. **选择语言**（英文/中文）从右上角下拉菜单
 3. **输入月薪**（美元或人民币，自动转换）
-4. **选择城市**（上海/杭州）获取2025年费率
+4. **选择城市**（上海/上海灵活就业/杭州）获取2025年费率
 5. **自定义费率**（如需要，可选）
 6. **实时查看结果**，输入时即时更新
 
@@ -367,6 +376,13 @@ Monthly Taxable Income = Base Salary - Standard Deduction - (Other Employee Bene
 - **公积金费率**：7%（5%-7%范围）
 - **补充公积金**：可用（1%-6%）
 - **商业保险**：默认¥2,000/年
+
+### 上海灵活就业（2025年）
+- **社保基数**：¥7,460 - ¥7,460（固定为最低基数）
+- **公积金基数**：¥2,690 - ¥37,302
+- **个人缴费比例**：养老保险20%，医疗保险10%，住房公积金24%
+- **单位缴费比例**：全部0%（自雇人员）
+- **其他福利**：灵活就业不适用
 
 ### 杭州（2025年）
 - **社保基数**：¥4,986 - ¥25,299
