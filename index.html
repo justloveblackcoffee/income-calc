@@ -310,6 +310,7 @@
         <label id="labelCity" for="city">City</label>
         <select id="city">
           <option value="shanghai">Shanghai / 上海</option>
+          <option value="shanghai_flexible">Shanghai Flexible Employment / 上海灵活就业</option>
           <option value="hangzhou">Hangzhou / 杭州</option>
         </select>
       </div>
@@ -536,6 +537,93 @@
               "unit": "CNY/year",
               "note_en": "Optional, enterprise-defined",
               "note_cn": "可选，个人不需要缴纳",
+              "optional": true
+            }
+          }
+        },
+        "shanghai_flexible": {
+          "meta": {
+            "city_cn": "上海灵活就业",
+            "year": 2025,
+            "social_insurance_base": { "lower": 7460, "upper": 7460 },
+            "housing_fund_base": { "lower": 2690, "upper": 37302 }
+          },
+          "benefits": {
+            "pension": {
+              "name": "Pension Insurance",
+              "cn": "养老保险",
+              "employer_rate": 0,
+              "employee_rate": 0.20,
+              "note_en": "Flexible employment: employee pays 20%",
+              "note_cn": "灵活就业：个人缴纳20%"
+            },
+            "medical": {
+              "name": "Medical Insurance",
+              "cn": "医疗保险",
+              "employer_rate": 0,
+              "employee_rate": 0.10,
+              "note_en": "Flexible employment: employee pays 10%",
+              "note_cn": "灵活就业：个人缴纳10%"
+            },
+            "unemployment": {
+              "name": "Unemployment Insurance",
+              "cn": "失业保险",
+              "employer_rate": 0,
+              "employee_rate": 0,
+              "note_en": "Not applicable for flexible employment",
+              "note_cn": "灵活就业不适用"
+            },
+            "work_injury": {
+              "name": "Work Injury Insurance",
+              "cn": "工伤保险",
+              "employer_rate": 0,
+              "employee_rate": 0,
+              "note_en": "Not applicable for flexible employment",
+              "note_cn": "灵活就业不适用"
+            },
+            "maternity": {
+              "name": "Maternity Insurance",
+              "cn": "生育保险",
+              "employer_rate": 0,
+              "employee_rate": 0,
+              "note_en": "Not applicable for flexible employment",
+              "note_cn": "灵活就业不适用"
+            },
+            "housing_fund": {
+              "name": "Housing Provident Fund",
+              "cn": "住房公积金",
+              "employer_rate": 0,
+              "employee_rate": 0.24,
+              "range_allowed": [0.05, 0.24],
+              "note_en": "Flexible employment: employee pays 10%-24%",
+              "note_cn": "灵灵活就业人员可自主选择缴存比例，范围在10%至24%之间"
+            },
+            "supplementary_housing": {
+              "name": "Supplementary Housing Fund",
+              "cn": "补充公积金",
+              "employer_rate": 0,
+              "employee_rate": 0,
+              "note_en": "Not applicable for flexible employment",
+              "note_cn": "灵活就业不适用",
+              "optional": true
+            },
+            "corporate_pension": {
+              "name": "Corporate Pension",
+              "cn": "企业年金",
+              "employer_rate": 0,
+              "employee_rate": 0,
+              "note_en": "Not applicable for flexible employment",
+              "note_cn": "灵活就业不适用",
+              "optional": true,
+              "base": "base_salary"
+            },
+            "commercial_insurance": {
+              "name": "Group Commercial Insurance",
+              "cn": "团体商业保险",
+              "employer_paid": 0,
+              "unit": "CNY/year",
+              "note_en": "Not applicable for flexible employment",
+              "note_cn": "灵活就业不适用",
               "optional": true
             }
           }
