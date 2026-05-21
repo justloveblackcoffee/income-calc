@@ -103,12 +103,29 @@
       margin-bottom: var(--spacing-sm);
     }
 
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .form-row .form-group {
+      margin-bottom: 0;
+    }
+
     label {
       display: block;
       font-size: 0.8rem;
       font-weight: 500;
       color: var(--text-secondary);
       margin-bottom: 0.125rem;
+    }
+
+    #labelSalaryRMB,
+    #labelSalaryAnnualRMB {
+      font-weight: 700;
+      color: var(--text-primary);
     }
 
     input[type="number"],
@@ -241,6 +258,12 @@
       }
     }
 
+    @media (max-width: 600px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
     @media (max-width: 480px) {
       header {
         flex-direction: column;
@@ -271,11 +294,6 @@
       <h2 id="inputHeader">Input</h2>
       
       <div class="form-group">
-        <label id="labelSalaryUSD" for="salaryUSD">Base Salary (USD)</label>
-        <input type="number" id="salaryUSD" value="10000">
-      </div>
-      
-      <div class="form-group">
         <label id="labelExchangeRate" for="rate">Exchange Rate (USD→CNY)</label>
         <div style="display: flex; align-items: center; gap: 0.5rem;">
           <input type="number" id="rate" value="7.12" step="0.01" style="flex: 1;">
@@ -300,18 +318,35 @@
         </div>
         <small id="rateStatus" style="color: var(--text-secondary); font-size: 0.7rem; margin-top: 0.25rem; display: block;"></small>
       </div>
-      
-      <div class="form-group">
-        <label id="labelSalaryRMB" for="salaryRMB">Base Salary (CNY)</label>
-        <input type="number" id="salaryRMB" value="0">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label id="labelSalaryUSD" for="salaryUSD">Monthly Base Salary (USD)</label>
+          <input type="number" id="salaryUSD" value="10000">
+        </div>
+        <div class="form-group">
+          <label id="labelSalaryRMB" for="salaryRMB">Monthly Base Salary (CNY)</label>
+          <input type="number" id="salaryRMB" value="0">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label id="labelSalaryAnnualUSD" for="salaryAnnualUSD">Annual Base Salary (USD)</label>
+          <input type="number" id="salaryAnnualUSD" value="120000">
+        </div>
+        <div class="form-group">
+          <label id="labelSalaryAnnualRMB" for="salaryAnnualRMB">Annual Base Salary (CNY)</label>
+          <input type="number" id="salaryAnnualRMB" value="0">
+        </div>
       </div>
       
       <div class="form-group">
         <label id="labelCity" for="city">City</label>
         <select id="city">
-          <option value="shanghai">Shanghai / 上海</option>
+          <option value="shanghai">Shanghai Corporation Employee / 上海企业职工</option>
           <option value="shanghai_flexible">Shanghai Flexible Employment / 上海灵活就业</option>
-          <option value="hangzhou">Hangzhou / 杭州</option>
+          <option value="hangzhou">Hangzhou Corporation Employee / 杭州企业职工</option>
         </select>
       </div>
 
@@ -455,7 +490,7 @@
       "cities": {
         "shanghai": {
           "meta": {
-            "city_cn": "上海",
+            "city_cn": "上海企业职工",
             "year": 2025,
             "social_insurance_base": { "lower": 7460, "upper": 37302 },
             "housing_fund_base": { "lower": 2690, "upper": 37302 }
@@ -554,16 +589,16 @@
               "cn": "养老保险",
               "employer_rate": 0,
               "employee_rate": 0.20,
-              "note_en": "Flexible employment: employee pays 20%",
-              "note_cn": "灵活就业：个人缴纳20%"
+              "note_en": "Flexible employment: employee pays 20% (8% to personal account, 12% to pooled account)",
+              "note_cn": "灵活就业：个人缴纳20% (8%进入个人账户，12%进入统筹账户)"
             },
             "medical": {
               "name": "Medical Insurance",
               "cn": "医疗保险",
               "employer_rate": 0,
               "employee_rate": 0.10,
-              "note_en": "Flexible employment: employee pays 10%",
-              "note_cn": "灵活就业：个人缴纳10%"
+              "note_en": "Flexible employment: employee pays 10% (1.5% to personal account, 8.5% to pooled account)",
+              "note_cn": "灵活就业：个人缴纳10% (1.5%进入个人账户，用于支付门诊费用、药店购药等；8.5%进入统筹账户，用于支付住院费用、大病医疗费用等)"
             },
             "unemployment": {
               "name": "Unemployment Insurance",
@@ -630,7 +665,7 @@
         },
         "hangzhou": {
           "meta": {
-            "city_cn": "杭州",
+            "city_cn": "杭州企业职工",
             "year": 2025,
             "social_insurance_base": { "lower": 4986, "upper": 25299 },
             "housing_fund_base": { "lower": 2490, "upper": 40694 }
@@ -723,9 +758,11 @@
         pageTitle: "China Benefit & Net Income Calculator",
         inputHeader: "Input",
         resultsHeader: "Results",
-        labelSalaryUSD: "Base Salary (USD)",
+        labelSalaryUSD: "Monthly Base Salary (USD)",
         labelExchangeRate: "Exchange Rate (USD→CNY)",
-        labelSalaryRMB: "Base Salary (CNY)",
+        labelSalaryRMB: "Monthly Base Salary (CNY)",
+        labelSalaryAnnualUSD: "Annual Base Salary (USD)",
+        labelSalaryAnnualRMB: "Annual Base Salary (CNY)",
         labelCity: "City",
         limitsHeader: "Social Insurance / Housing Fund Limits (2025.7-2026.6)",
         labelSIUpper: "Social Insurance Upper Limit (CNY)",
@@ -773,21 +810,26 @@
         corpPensionNonDeductible: "Corporate Pension (Non-deductible):",
         otherEmployeeBenefits: "Other Employee Benefits:",
         totalEmployeeBenefits: "Total Deductible Employee Benefits:",
-        refreshRate: "Refresh"
+        refreshRate: "Refresh",
+        rateStatusLoading: "Loading exchange rate...",
+        rateStatusFetched: "Fetched at {time}",
+        rateStatusFailed: "Failed to load rate. Using default."
       },
       zh: {
         pageTitle: "中国社保公积金及税后收入计算器",
         inputHeader: "输入",
         resultsHeader: "结果",
-        labelSalaryUSD: "基本工资 (美元)",
-        labelExchangeRate: "汇率 (USD→CNY)",
-        labelSalaryRMB: "基本工资 (CNY)",
+        labelSalaryUSD: "月薪 (美元)",
+        labelExchangeRate: "汇率 (美元→人民币)",
+        labelSalaryRMB: "月薪 (人民币)",
+        labelSalaryAnnualUSD: "年薪 (美元)",
+        labelSalaryAnnualRMB: "年薪 (人民币)",
         labelCity: "城市",
         limitsHeader: "社保 / 公积金缴费基数限制 (2025.7-2026.6)",
-        labelSIUpper: "社保缴费基数上限 (CNY)",
-        labelSILower: "社保缴费基数下限 (CNY)",
-        labelHFUpper: "公积金缴费基数上限 (CNY)",
-        labelHFLower: "公积金缴费基数下限 (CNY)",
+        labelSIUpper: "社保缴费基数上限 (人民币)",
+        labelSILower: "社保缴费基数下限 (人民币)",
+        labelHFUpper: "公积金缴费基数上限 (人民币)",
+        labelHFLower: "公积金缴费基数下限 (人民币)",
         benefitRatesHeader: "福利缴纳比例 (单位 / 个人)",
         thCategory: "类别",
         thEmployer: "单位 %",
@@ -800,7 +842,7 @@
         tdHousing: "住房公积金",
         tdSupplementary: "补充公积金 (可选)",
         tdCorporate: "企业年金 (可选)",
-        labelCommercial: "商业保险 (可选，单位，CNY/年)",
+        labelCommercial: "商业保险 (可选，单位，人民币/年)",
         taxTableHeader: "12个月税额表",
         thMonth: "月份",
         thCumulative: "累计应税收入 (¥)",
@@ -829,11 +871,42 @@
         corpPensionNonDeductible: "企业年金 (不可扣除):",
         otherEmployeeBenefits: "其他个人福利:",
         totalEmployeeBenefits: "可扣除的个人福利合计:",
-        refreshRate: "刷新"
+        refreshRate: "刷新",
+        rateStatusLoading: "正在加载汇率...",
+        rateStatusFetched: "于 {time} 获取",
+        rateStatusFailed: "加载汇率失败，使用默认值。"
       }
     };
 
     let currentLanguage = 'en';
+    let rateStatusState = null;
+    let lastRateUpdateTime = null;
+
+    function getLocaleForLanguage() {
+      return currentLanguage === 'zh' ? 'zh-CN' : 'en-US';
+    }
+
+    function formatRateFetchedMessage(date) {
+      const t = translations[currentLanguage];
+      const time = date.toLocaleString(getLocaleForLanguage());
+      return t.rateStatusFetched.replace('{time}', time);
+    }
+
+    function updateRateStatusDisplay() {
+      const rateStatusEl = document.getElementById('rateStatus');
+      if (!rateStatusEl || !rateStatusState) return;
+      const t = translations[currentLanguage];
+      if (rateStatusState === 'loading') {
+        rateStatusEl.textContent = t.rateStatusLoading;
+        rateStatusEl.style.color = 'var(--text-secondary)';
+      } else if (rateStatusState === 'updated' && lastRateUpdateTime) {
+        rateStatusEl.textContent = formatRateFetchedMessage(lastRateUpdateTime);
+        rateStatusEl.style.color = 'var(--success)';
+      } else if (rateStatusState === 'failed') {
+        rateStatusEl.textContent = t.rateStatusFailed;
+        rateStatusEl.style.color = 'var(--text-secondary)';
+      }
+    }
 
     const benefitNoteMapping = {
       'notePension': 'pension',
@@ -874,6 +947,8 @@
       document.getElementById('labelSalaryUSD').childNodes[0].nodeValue = t.labelSalaryUSD;
       document.getElementById('labelExchangeRate').childNodes[0].nodeValue = t.labelExchangeRate;
       document.getElementById('labelSalaryRMB').childNodes[0].nodeValue = t.labelSalaryRMB;
+      document.getElementById('labelSalaryAnnualUSD').childNodes[0].nodeValue = t.labelSalaryAnnualUSD;
+      document.getElementById('labelSalaryAnnualRMB').childNodes[0].nodeValue = t.labelSalaryAnnualRMB;
       document.getElementById('labelCity').childNodes[0].nodeValue = t.labelCity;
       document.getElementById('labelSIUpper').childNodes[0].nodeValue = t.labelSIUpper;
       document.getElementById('labelSILower').childNodes[0].nodeValue = t.labelSILower;
@@ -912,6 +987,8 @@
       
       // Update refresh button text
       document.getElementById('refreshText').innerText = t.refreshRate;
+
+      updateRateStatusDisplay();
       
       // Recalculate to update dynamic content
       calculate();
@@ -920,26 +997,76 @@
     const rateInput = document.getElementById('rate');
     const salaryUSD = document.getElementById('salaryUSD');
     const salaryRMB = document.getElementById('salaryRMB');
+    const salaryAnnualUSD = document.getElementById('salaryAnnualUSD');
+    const salaryAnnualRMB = document.getElementById('salaryAnnualRMB');
     const citySelect = document.getElementById('city');
     const languageSelect = document.getElementById('languageSelect');
+    const MONTHS_PER_YEAR = 12;
 
-    function syncCurrency(e){
-      const rate = parseFloat(rateInput.value)||7.12;
-      if(e.target===salaryUSD){ 
-        salaryRMB.value=(salaryUSD.value*rate).toFixed(2); 
-      }
-      else if(e.target===salaryRMB){ 
-        salaryUSD.value=(salaryRMB.value/rate).toFixed(2); 
-      }
-      else if(e.target===rateInput){
-        // When exchange rate changes, update CNY salary based on current USD salary
-        salaryRMB.value=(salaryUSD.value*rate).toFixed(2);
+    function getExchangeRate() {
+      return parseFloat(rateInput.value) || 7.12;
+    }
+
+    function formatAmountValue(n) {
+      return Number(n).toFixed(2);
+    }
+
+    function syncFromMonthlyUSD() {
+      const rate = getExchangeRate();
+      const monthlyUSD = parseFloat(salaryUSD.value) || 0;
+      const monthlyRMB = monthlyUSD * rate;
+      salaryRMB.value = formatAmountValue(monthlyRMB);
+      salaryAnnualUSD.value = formatAmountValue(monthlyUSD * MONTHS_PER_YEAR);
+      salaryAnnualRMB.value = formatAmountValue(monthlyRMB * MONTHS_PER_YEAR);
+    }
+
+    function syncFromMonthlyRMB() {
+      const rate = getExchangeRate();
+      const monthlyRMB = parseFloat(salaryRMB.value) || 0;
+      const monthlyUSD = monthlyRMB / rate;
+      salaryUSD.value = formatAmountValue(monthlyUSD);
+      salaryAnnualUSD.value = formatAmountValue(monthlyUSD * MONTHS_PER_YEAR);
+      salaryAnnualRMB.value = formatAmountValue(monthlyRMB * MONTHS_PER_YEAR);
+    }
+
+    function syncFromAnnualUSD() {
+      const rate = getExchangeRate();
+      const annualUSD = parseFloat(salaryAnnualUSD.value) || 0;
+      const monthlyUSD = annualUSD / MONTHS_PER_YEAR;
+      const monthlyRMB = monthlyUSD * rate;
+      salaryUSD.value = formatAmountValue(monthlyUSD);
+      salaryRMB.value = formatAmountValue(monthlyRMB);
+      salaryAnnualRMB.value = formatAmountValue(annualUSD * rate);
+    }
+
+    function syncFromAnnualRMB() {
+      const rate = getExchangeRate();
+      const annualRMB = parseFloat(salaryAnnualRMB.value) || 0;
+      const monthlyRMB = annualRMB / MONTHS_PER_YEAR;
+      const monthlyUSD = monthlyRMB / rate;
+      salaryRMB.value = formatAmountValue(monthlyRMB);
+      salaryUSD.value = formatAmountValue(monthlyUSD);
+      salaryAnnualUSD.value = formatAmountValue(monthlyUSD * MONTHS_PER_YEAR);
+    }
+
+    function syncCurrency(e) {
+      if (e.target === salaryUSD || e.target === rateInput) {
+        syncFromMonthlyUSD();
+      } else if (e.target === salaryRMB) {
+        syncFromMonthlyRMB();
+      } else if (e.target === salaryAnnualUSD) {
+        syncFromAnnualUSD();
+      } else if (e.target === salaryAnnualRMB) {
+        syncFromAnnualRMB();
       }
       calculate();
     }
+
     rateInput.addEventListener('input', syncCurrency);
     salaryUSD.addEventListener('input', syncCurrency);
     salaryRMB.addEventListener('input', syncCurrency);
+    salaryAnnualUSD.addEventListener('input', syncCurrency);
+    salaryAnnualRMB.addEventListener('input', syncCurrency);
 
     // Language selector
     languageSelect.addEventListener('change', function() {
@@ -1028,12 +1155,14 @@
       const base=parseFloat(salaryRMB.value)||0;
       const siU=parseFloat(siUpper.value),siL=parseFloat(siLower.value);
       const hfU=parseFloat(hfUpper.value),hfL=parseFloat(hfLower.value);
+      const city = citySelect.value;
 
       let siBase=Math.min(Math.max(base,siL),siU);
       let hfBase=Math.min(Math.max(base,hfL),hfU);
+      if (city === 'shanghai_flexible') {
+        hfBase = hfU;
+      }
 
-      // Get current city config for extra fixed amounts
-      const city = citySelect.value;
       const config = cityConfig.cities[city];
 
       // Get translations for current language
@@ -1151,7 +1280,8 @@
     async function fetchExchangeRate() {
       try {
         setLoadingState(true);
-        rateStatus.textContent = 'Loading exchange rate...';
+        rateStatusState = 'loading';
+        updateRateStatusDisplay();
         
         // Try multiple APIs for better reliability
         const apis = [
@@ -1177,8 +1307,9 @@
             
             if (rate && rate > 0) {
               rateInput.value = parseFloat(rate.toFixed(4));
-              rateStatus.textContent = `Updated: ${new Date().toLocaleString()}`;
-              rateStatus.style.color = 'var(--success)';
+              rateStatusState = 'updated';
+              lastRateUpdateTime = new Date();
+              updateRateStatusDisplay();
               // Trigger currency sync to update CNY salary based on current USD salary
               syncCurrency({ target: rateInput });
               return;
@@ -1193,8 +1324,8 @@
         
       } catch (error) {
         console.error('Failed to fetch exchange rate:', error);
-        rateStatus.textContent = 'Failed to load rate. Using default.';
-        rateStatus.style.color = 'var(--text-secondary)';
+        rateStatusState = 'failed';
+        updateRateStatusDisplay();
       } finally {
         setLoadingState(false);
       }
@@ -1233,6 +1364,9 @@
     
     // Load initial city config
     loadCityConfig();
+
+    // Initialize salary fields (monthly ↔ annual, USD ↔ CNY)
+    syncFromMonthlyUSD();
   </script>
 </body>
 </html>
