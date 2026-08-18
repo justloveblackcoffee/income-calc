@@ -1,0 +1,205 @@
+/*
+ * Policy data for the annual income / benefit calculator.
+ *
+ * Structure: profile (city + employment type) -> policy periods -> base groups + items.
+ * Each period records its own effective range and data source, so a calendar year can
+ * span several periods and each month resolves independently.
+ */
+(function (root) {
+  const POLICY_DATA = {
+    profiles: {
+      shanghai: {
+        key: 'shanghai',
+        employment: 'employee',
+        label_en: 'Shanghai Corporation Employee',
+        label_cn: '上海企业职工'
+      },
+      shanghai_flexible: {
+        key: 'shanghai_flexible',
+        employment: 'flexible',
+        label_en: 'Shanghai Flexible Employment',
+        label_cn: '上海灵活就业'
+      },
+      huzhou_flexible: {
+        key: 'huzhou_flexible',
+        employment: 'flexible',
+        label_en: 'Huzhou (Zhejiang) Flexible Employment',
+        label_cn: '浙江湖州灵活就业'
+      }
+    },
+
+    /* Comprehensive income annual tax brackets. Quick deductions are derived, not stored. */
+    taxBrackets: [
+      { upTo: 36000, rate: 0.03 },
+      { upTo: 144000, rate: 0.10 },
+      { upTo: 300000, rate: 0.20 },
+      { upTo: 420000, rate: 0.25 },
+      { upTo: 660000, rate: 0.30 },
+      { upTo: 960000, rate: 0.35 },
+      { upTo: Infinity, rate: 0.45 }
+    ],
+
+    annualStandardDeduction: 60000,
+
+    periods: {
+      shanghai: [
+        {
+          from: 202507,
+          to: 202606,
+          official: true,
+          source: '上海市人力资源和社会保障局 2025 年度缴费基数公告',
+          baseGroups: {
+            si: { lower: 7460, upper: 37302, defaultRule: 'salary_capped', editable: false },
+            hf: { lower: 2690, upper: 37302, defaultRule: 'salary_capped', editable: false }
+          },
+          items: shanghaiEmployeeItems()
+        },
+        {
+          from: 202607,
+          to: 202706,
+          official: true,
+          source: '上海市人力资源和社会保障局 2026 年度缴费基数公告',
+          baseGroups: {
+            si: { lower: 7546, upper: 37731, defaultRule: 'salary_capped', editable: false },
+            hf: { lower: 2740, upper: 37731, defaultRule: 'salary_capped', editable: false }
+          },
+          items: shanghaiEmployeeItems()
+        }
+      ],
+
+      shanghai_flexible: [
+        {
+          from: 202507,
+          to: 202606,
+          official: true,
+          source: '上海市人力资源和社会保障局 2025 年度缴费基数公告',
+          baseGroups: {
+            si: { lower: 7460, upper: 37302, defaultRule: 'lower', editable: true },
+            hf: { lower: 2690, upper: 37302, defaultRule: 'upper', editable: true }
+          },
+          items: shanghaiFlexibleItems()
+        },
+        {
+          from: 202607,
+          to: 202706,
+          official: true,
+          source: '上海市人力资源和社会保障局 2026 年度缴费基数公告',
+          baseGroups: {
+            si: { lower: 7546, upper: 37731, defaultRule: 'lower', editable: true },
+            hf: { lower: 2740, upper: 37731, defaultRule: 'upper', editable: true }
+          },
+          items: shanghaiFlexibleItems()
+        }
+      ],
+
+      huzhou_flexible: [
+        {
+          from: 202501,
+          to: 202512,
+          official: true,
+          source: '浙江省 2025 年社会保险费缴费基数上下限说明',
+          baseGroups: {
+            pension: { lower: 4986, upper: 25299, defaultRule: 'lower', editable: true },
+            medical: { lower: 4986, upper: 4986, defaultRule: 'lower', editable: false }
+          },
+          items: huzhouFlexibleItems()
+        }
+      ]
+    }
+  };
+
+  function shanghaiEmployeeItems() {
+    return {
+      pension: { baseGroup: 'si', employerRate: 0.16, employeeRate: 0.08, deductible: true },
+      medical: { baseGroup: 'si', employerRate: 0.09, employeeRate: 0.02, deductible: true },
+      unemployment: { baseGroup: 'si', employerRate: 0.005, employeeRate: 0.005, deductible: true },
+      work_injury: {
+        baseGroup: 'si', employerRate: 0.002, employeeRate: 0, deductible: false,
+        note_en: 'Rate varies by industry risk (0.2%–1.9%)',
+        note_cn: '行业风险高低决定费率 (0.2%–1.9%)'
+      },
+      maternity: {
+        baseGroup: 'si', employerRate: 0, employeeRate: 0, deductible: false,
+        note_en: 'Merged into medical insurance', note_cn: '已并入医疗保险'
+      },
+      housing_fund: {
+        baseGroup: 'hf', employerRate: 0.07, employeeRate: 0.07, deductible: true,
+        rateEditable: true, rateRange: [0.05, 0.07], linkedRates: true,
+        note_en: 'Company-defined, employer and employee equal (5%-7%)',
+        note_cn: '企业可自主选择，单位和个人比例相同（5%-7%）'
+      },
+      supplementary_housing: {
+        baseGroup: 'hf', employerRate: 0, employeeRate: 0, deductible: true,
+        rateEditable: true, rateRange: [0, 0.06], linkedRates: true, optional: true,
+        note_en: 'Optional, defaults to 0; company-defined, employer and employee equal (up to 6%)',
+        note_cn: '可选，默认 0；企业可自主选择，单位和个人比例相同（最高 6%）'
+      }
+    };
+  }
+
+  function shanghaiFlexibleItems() {
+    return {
+      pension: {
+        baseGroup: 'si', employerRate: 0, employeeRate: 0.20, deductible: true,
+        note_en: 'Flexible employment: 20% personally (8% to personal account)',
+        note_cn: '灵活就业：个人缴纳 20%（8% 进入个人账户）'
+      },
+      medical: {
+        baseGroup: 'si', employerRate: 0, employeeRate: 0.10, deductible: true,
+        note_en: 'Flexible employment: 10% personally',
+        note_cn: '灵活就业：个人缴纳 10%'
+      },
+      unemployment: { baseGroup: 'si', employerRate: 0, employeeRate: 0, applicable: false },
+      work_injury: { baseGroup: 'si', employerRate: 0, employeeRate: 0, applicable: false },
+      maternity: {
+        baseGroup: 'si', employerRate: 0, employeeRate: 0, applicable: false,
+        note_en: 'Covered by medical insurance', note_cn: '包含在医保政策中'
+      },
+      housing_fund: {
+        baseGroup: 'hf', employerRate: 0, employeeRate: 0.24, deductible: true,
+        rateEditable: true, rateRange: [0.10, 0.24],
+        note_en: 'Flexible employment may choose 10%-24%',
+        note_cn: '灵活就业人员可自主选择缴存比例，范围 10%–24%'
+      },
+      supplementary_housing: { baseGroup: 'hf', employerRate: 0, employeeRate: 0, applicable: false }
+    };
+  }
+
+  function huzhouFlexibleItems() {
+    return {
+      pension: {
+        baseGroup: 'pension', employerRate: 0, employeeRate: 0.20, deductible: true,
+        note_en: 'Personal rate 20%, of which 8% goes to the personal account',
+        note_cn: '个人缴费比例 20%，其中 8% 计入个人账户'
+      },
+      medical: {
+        baseGroup: 'medical', employerRate: 0, employeeRate: 0.095, deductible: true,
+        note_en: 'Fixed policy base; 7.5% pooled, 2% to personal account',
+        note_cn: '按政策固定基数缴纳，7.5% 进入统筹基金，2% 划入个人账户'
+      },
+      unemployment: { baseGroup: 'pension', employerRate: 0, employeeRate: 0, applicable: false },
+      work_injury: { baseGroup: 'pension', employerRate: 0, employeeRate: 0, applicable: false },
+      maternity: {
+        baseGroup: 'medical', employerRate: 0, employeeRate: 0, applicable: false,
+        note_en: 'Covered by the local medical insurance policy', note_cn: '包含在当地医保政策中'
+      },
+      housing_fund: {
+        mode: 'monthly_amount', maxMonthlyAmount: 50000, defaultMonthlyAmount: 0, deductible: true,
+        note_en: 'Self-determined deposits; the deductible amount equals the deposited amount',
+        note_cn: '自主决定缴存金额，允许税前扣除金额取实际缴存金额'
+      },
+      supplementary_housing: { mode: 'monthly_amount', applicable: false }
+    };
+  }
+
+  POLICY_DATA.itemOrder = [
+    'pension', 'medical', 'unemployment', 'work_injury', 'maternity',
+    'housing_fund', 'supplementary_housing'
+  ];
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = POLICY_DATA;
+  } else {
+    root.POLICY_DATA = POLICY_DATA;
+  }
+})(typeof globalThis !== 'undefined' ? globalThis : this);

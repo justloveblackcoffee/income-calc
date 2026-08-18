@@ -1,38 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>China Benefit & Net Income Calculator</title>
+  <title>China Annual Income, Benefit & Tax Calculator</title>
   <style>
     :root {
       --primary-color: #2563eb;
       --primary-dark: #1e40af;
-      --secondary-color: #64748b;
       --background: #f8fafc;
       --surface: #ffffff;
       --border: #e2e8f0;
       --text-primary: #0f172a;
       --text-secondary: #64748b;
       --success: #10b981;
+      --warning: #b45309;
       --spacing-xs: 0.25rem;
       --spacing-sm: 0.5rem;
       --spacing-md: 0.75rem;
       --spacing-lg: 1rem;
-      --spacing-xl: 1.25rem;
       --radius-sm: 0.25rem;
       --radius-md: 0.375rem;
       --radius-lg: 0.5rem;
-      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
       --shadow-md: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
-      --shadow-lg: 0 4px 6px -2px rgba(0, 0, 0, 0.1);
     }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -72,8 +65,9 @@
       max-width: 1400px;
       margin: 0 auto;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(100%, 450px), 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr));
       gap: var(--spacing-md);
+      align-items: start;
     }
 
     section {
@@ -95,13 +89,13 @@
     h3 {
       font-size: 0.95rem;
       font-weight: 600;
-      margin: var(--spacing-md) 0 var(--spacing-sm);
+      margin: var(--spacing-lg) 0 var(--spacing-sm);
       color: var(--text-primary);
     }
 
-    .form-group {
-      margin-bottom: var(--spacing-sm);
-    }
+    h3:first-of-type { margin-top: var(--spacing-sm); }
+
+    .form-group { margin-bottom: var(--spacing-sm); }
 
     .form-row {
       display: grid;
@@ -110,9 +104,7 @@
       margin-bottom: var(--spacing-sm);
     }
 
-    .form-row .form-group {
-      margin-bottom: 0;
-    }
+    .form-row .form-group { margin-bottom: 0; }
 
     label {
       display: block;
@@ -122,33 +114,26 @@
       margin-bottom: 0.125rem;
     }
 
-    #labelSalaryRMB,
-    #labelSalaryAnnualRMB {
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-
-    input[type="number"],
-    select {
+    input[type="number"], select {
       width: 100%;
       padding: 0.4rem 0.6rem;
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
       font-size: 0.85rem;
-      transition: all 0.2s ease;
       background: var(--surface);
+      transition: all 0.2s ease;
     }
 
-    input[type="number"]:focus,
-    select:focus {
+    input[readonly] {
+      background: var(--background);
+      color: var(--text-secondary);
+      cursor: not-allowed;
+    }
+
+    input[type="number"]:focus, select:focus {
       outline: none;
       border-color: var(--primary-color);
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-    }
-
-    input[type="number"]:hover,
-    select:hover {
-      border-color: var(--primary-dark);
     }
 
     table {
@@ -156,21 +141,9 @@
       border-collapse: collapse;
       margin-top: var(--spacing-sm);
       font-size: 0.8rem;
-      overflow-x: auto;
-      display: block;
     }
 
-    thead {
-      display: table;
-      width: 100%;
-      table-layout: fixed;
-    }
-
-    tbody {
-      display: table;
-      width: 100%;
-      table-layout: fixed;
-    }
+    .scroll-x { overflow-x: auto; }
 
     th {
       background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
@@ -179,1194 +152,371 @@
       padding: 0.4rem 0.5rem;
       text-align: right;
       font-size: 0.75rem;
+      white-space: nowrap;
     }
 
-    th:first-child,
-    td:first-child {
-      text-align: left;
-    }
+    th:first-child, td:first-child { text-align: left; }
 
     td {
       border: 1px solid var(--border);
-      padding: 0.4rem 0.5rem;
+      padding: 0.35rem 0.5rem;
       text-align: right;
     }
 
-    tbody tr:hover {
-      background: var(--background);
+    tbody tr:hover { background: var(--background); }
+
+    tr.total-row { font-weight: 700; background: #f1f5f9; }
+
+    td input[type="number"] {
+      padding: 0.2rem 0.35rem;
+      font-size: 0.78rem;
+      text-align: right;
+      min-width: 5rem;
     }
 
-    .rate-input-cell {
-      padding: 0.15rem;
-    }
-
-    .rate-input-cell input {
-      padding: 0.25rem 0.4rem;
-      font-size: 0.8rem;
-      text-align: center;
-    }
-
-    .benefit-note {
-      font-size: 0.7rem;
+    .cell-note {
+      display: block;
+      font-size: 0.68rem;
       color: var(--text-secondary);
       font-style: italic;
-      display: block;
-      margin-top: 0.125rem;
+      margin-top: 0.1rem;
     }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 0.05rem 0.35rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .badge-official { background: #dcfce7; color: #166534; }
+    .badge-carried { background: #fef3c7; color: var(--warning); }
+    .badge-custom { background: #dbeafe; color: var(--primary-dark); }
+    .badge-adjusted { background: #fee2e2; color: #b91c1c; }
+    .badge-missing { background: #f1f5f9; color: var(--text-secondary); }
+
+    .btn {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 0.3rem 0.6rem;
+      font-size: 0.72rem;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .btn:hover { background: var(--primary-dark); }
+    .btn-ghost { background: var(--background); color: var(--text-secondary); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: var(--border); color: var(--text-primary); }
+    .btn-mini { padding: 0.15rem 0.35rem; font-size: 0.68rem; }
+
+    .ded-list {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-top: var(--spacing-sm);
+    }
+
+    .ded-header {
+      background: #eef2f7;
+      padding: 0.35rem 0.6rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      letter-spacing: 0.02em;
+    }
+
+    .ded-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--spacing-sm);
+      padding: 0.35rem 0.6rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.85rem;
+    }
+
+    .ded-row input[type="number"] { max-width: 11rem; text-align: right; }
+
+    .ded-label { display: block; }
+
+    .ded-label small {
+      display: block;
+      font-size: 0.68rem;
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+
+    .ded-value { font-variant-numeric: tabular-nums; }
+
+    .ded-row.ded-total { font-weight: 700; background: #f8fafc; }
+
+    .radio-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-sm) var(--spacing-lg);
+      padding: 0.35rem 0;
+    }
+
+    .radio-row label {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      margin: 0;
+      font-size: 0.82rem;
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+
+    .radio-row input[type="radio"] { cursor: pointer; }
+
+    .btn-row { display: flex; gap: var(--spacing-xs); flex-wrap: wrap; margin-top: var(--spacing-sm); }
 
     .summary-box {
       background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
       border-left: 4px solid var(--primary-color);
-      padding: var(--spacing-sm);
+      padding: var(--spacing-sm) var(--spacing-md);
       border-radius: var(--radius-md);
       margin-top: var(--spacing-sm);
     }
 
-    .summary-box p {
-      margin-bottom: var(--spacing-xs);
-    }
-
-    .summary-box b {
-      color: var(--primary-color);
-    }
-
-    .summary-box small {
+    .summary-box .formula {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.72rem;
       color: var(--text-secondary);
       display: block;
-      margin-top: 0.125rem;
+      margin-top: var(--spacing-xs);
+      white-space: pre-wrap;
+    }
+
+    .kv {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--spacing-sm);
+      padding: 0.25rem 0;
+      font-size: 0.85rem;
+      border-bottom: 1px dashed var(--border);
+    }
+
+    .kv:last-child { border-bottom: none; }
+    .kv b { color: var(--primary-dark); }
+    .kv.emphasis { font-weight: 700; font-size: 0.95rem; }
+
+    .hint {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      margin-top: var(--spacing-xs);
+    }
+
+    .warning {
+      font-size: 0.72rem;
+      color: var(--warning);
+      margin-top: var(--spacing-xs);
     }
 
     @media (max-width: 768px) {
-      body {
-        padding: 0.25rem;
-      }
-
-      section {
-        padding: var(--spacing-sm);
-      }
-
-      h1 {
-        font-size: 1.25rem;
-      }
-
-      table {
-        font-size: 0.7rem;
-      }
-
-      th, td {
-        padding: 0.25rem;
-      }
+      body { padding: 0.25rem; }
+      section { padding: var(--spacing-sm); }
+      table { font-size: 0.7rem; }
+      th, td { padding: 0.25rem; }
     }
 
     @media (max-width: 600px) {
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 480px) {
-      header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.25rem;
-      }
-
-      .language-selector {
-        width: 100%;
-        justify-content: space-between;
-      }
+      .form-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1 id="pageTitle">China Benefit & Net Income Calculator</h1>
+    <h1 data-i18n="pageTitle">China Annual Income, Benefit & Tax Calculator</h1>
     <div class="language-selector">
-      <label for="languageSelect">Language / 语言:</label>
+      <label for="languageSelect" data-i18n="langLabel">Language / 语言:</label>
       <select id="languageSelect">
         <option value="en">English</option>
         <option value="zh">中文</option>
       </select>
     </div>
   </header>
+
   <main>
     <section class="inputs">
-      <h2 id="inputHeader">Input</h2>
-      
+      <h2 data-i18n="inputHeader">Input</h2>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="profile" data-i18n="labelCity">City &amp; Employment Type</label>
+          <select id="profile"></select>
+        </div>
+        <div class="form-group">
+          <label for="year" data-i18n="labelYear">Calculation Year</label>
+          <select id="year"></select>
+        </div>
+      </div>
+
+      <div class="form-group" id="incomeCategoryGroup" hidden>
+        <label data-i18n="labelIncomeCategory">Income Category</label>
+        <div class="radio-row" id="incomeCategory">
+          <label><input type="radio" name="incomeCategory" value="salary" checked><span data-i18n="catSalary">Salary and wages</span></label>
+          <label><input type="radio" name="incomeCategory" value="labor"><span data-i18n="catLabor">Labor remuneration</span></label>
+          <label><input type="radio" name="incomeCategory" value="author"><span data-i18n="catAuthor">Author's remuneration</span></label>
+          <label><input type="radio" name="incomeCategory" value="royalty"><span data-i18n="catRoyalty">Royalties</span></label>
+        </div>
+        <p class="hint" data-i18n="incomeCategoryHint">The category determines the expense deduction and the tax-exempt part.</p>
+      </div>
+
+      <h3 data-i18n="secSalary">Salary &amp; Exchange Rate</h3>
+
       <div class="form-group">
-        <label id="labelExchangeRate" for="rate">Exchange Rate (USD→CNY)</label>
+        <label for="rate" data-i18n="labelExchangeRate">Exchange Rate (USD→CNY)</label>
         <div style="display: flex; align-items: center; gap: 0.5rem;">
           <input type="number" id="rate" value="7.12" step="0.01" style="flex: 1;">
-          <button id="refreshRateBtn" type="button" style="
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: var(--radius-sm);
-            padding: 0.4rem 0.6rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            font-size: 0.8rem;
-            min-width: 2.5rem;
-            justify-content: center;
-          " onmouseover="this.style.background='var(--primary-dark)'" onmouseout="this.style.background='var(--primary-color)'">
+          <button id="refreshRateBtn" type="button" class="btn">
             <span id="refreshIcon">🔄</span>
-            <span id="refreshText" style="font-size: 0.7rem;">Refresh</span>
+            <span id="refreshText" data-i18n="refreshRate">Refresh</span>
           </button>
         </div>
-        <small id="rateStatus" style="color: var(--text-secondary); font-size: 0.7rem; margin-top: 0.25rem; display: block;"></small>
+        <small id="rateStatus" class="hint"></small>
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label id="labelSalaryUSD" for="salaryUSD">Monthly Base Salary (USD)</label>
+          <label for="salaryUSD" data-i18n="labelSalaryUSD">Monthly Salary (USD)</label>
           <input type="number" id="salaryUSD" value="10000">
         </div>
         <div class="form-group">
-          <label id="labelSalaryRMB" for="salaryRMB">Monthly Base Salary (CNY)</label>
+          <label for="salaryRMB" data-i18n="labelSalaryRMB">Monthly Salary (CNY)</label>
           <input type="number" id="salaryRMB" value="0">
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label id="labelSalaryAnnualUSD" for="salaryAnnualUSD">Annual Base Salary (USD)</label>
-          <input type="number" id="salaryAnnualUSD" value="120000">
+          <label for="salaryAnnualUSD" data-i18n="labelAnnualUSD">Annual Salary (USD, calculated)</label>
+          <input type="number" id="salaryAnnualUSD" value="0" readonly>
         </div>
         <div class="form-group">
-          <label id="labelSalaryAnnualRMB" for="salaryAnnualRMB">Annual Base Salary (CNY)</label>
-          <input type="number" id="salaryAnnualRMB" value="0">
+          <label for="salaryAnnualRMB" data-i18n="labelAnnualRMB">Annual Salary (CNY, calculated)</label>
+          <input type="number" id="salaryAnnualRMB" value="0" readonly>
         </div>
       </div>
-      
-      <div class="form-group">
-        <label id="labelCity" for="city">City</label>
-        <select id="city">
-          <option value="shanghai">Shanghai Corporation Employee / 上海企业职工</option>
-          <option value="shanghai_flexible">Shanghai Flexible Employment / 上海灵活就业</option>
-          <option value="hangzhou">Hangzhou Corporation Employee / 杭州企业职工</option>
-        </select>
+      <p class="hint" data-i18n="annualReadonlyHint">The annual total is monthly salary × 12 and cannot be edited directly.</p>
+
+      <h3 data-i18n="secPolicy">Policy Periods Applied This Year</h3>
+      <div class="scroll-x" id="policySummary"></div>
+
+      <h3 data-i18n="secMonthly">Monthly Contribution Bases</h3>
+      <div class="scroll-x" id="monthlyTable"></div>
+      <p class="hint" id="monthlyHint"></p>
+      <p class="warning" id="monthlyWarning" hidden></p>
+      <div class="btn-row">
+        <button type="button" class="btn btn-ghost" id="resetMonthly" data-i18n="btnReset">Restore defaults</button>
       </div>
 
-      <h3 id="limitsHeader">Social Insurance / Housing Fund Limits (2025.7-2026.6)</h3>
-      
-      <div class="form-group">
-        <label id="labelSIUpper" for="siUpper">Social Insurance Upper Limit (CNY)</label>
-        <input type="number" id="siUpper" value="37302">
-      </div>
-      
-      <div class="form-group">
-        <label id="labelSILower" for="siLower">Social Insurance Lower Limit (CNY)</label>
-        <input type="number" id="siLower" value="7460">
-      </div>
-      
-      <div class="form-group">
-        <label id="labelHFUpper" for="hfUpper">Housing Fund Upper Limit (CNY)</label>
-        <input type="number" id="hfUpper" value="37302">
-      </div>
-      
-      <div class="form-group">
-        <label id="labelHFLower" for="hfLower">Housing Fund Lower Limit (CNY)</label>
-        <input type="number" id="hfLower" value="7460">
-      </div>
+      <h3 data-i18n="secContrib">Social Insurance, Housing Fund &amp; Benefits</h3>
+      <div class="scroll-x" id="contributions"></div>
 
-      <h3 id="benefitRatesHeader">Benefit Rates (Employer / Employee)</h3>
-      <table>
-        <thead>
-          <tr>
-            <th id="thCategory">Category</th>
-            <th id="thEmployer">Employer %</th>
-            <th id="thEmployee">Employee %</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <span id="tdPension">Pension Insurance</span>
-              <span class="benefit-note" id="notePension"></span>
-            </td>
-            <td class="rate-input-cell"><input type="number" id="penE" value="16"></td>
-            <td class="rate-input-cell"><input type="number" id="penP" value="8"></td>
-          </tr>
-          <tr>
-            <td>
-              <span id="tdMedical">Medical Insurance</span>
-              <span class="benefit-note" id="noteMedical"></span>
-            </td>
-            <td class="rate-input-cell"><input type="number" id="medE" value="10"></td>
-            <td class="rate-input-cell"><input type="number" id="medP" value="2"></td>
-          </tr>
-          <tr>
-            <td>
-              <span id="tdUnemployment">Unemployment Insurance</span>
-              <span class="benefit-note" id="noteUnemployment"></span>
-            </td>
-            <td class="rate-input-cell"><input type="number" id="uneE" value="0.5"></td>
-            <td class="rate-input-cell"><input type="number" id="uneP" value="0.5"></td>
-          </tr>
-          <tr>
-            <td>
-              <span id="tdWorkInjury">Work Injury Insurance</span>
-              <span class="benefit-note" id="noteWorkInjury"></span>
-            </td>
-            <td class="rate-input-cell"><input type="number" id="injE" value="0.26"></td>
-            <td class="rate-input-cell"><input type="number" id="injP" value="0"></td>
-          </tr>
-          <tr>
-            <td>
-              <span id="tdMaternity">Maternity Insurance</span>
-              <span class="benefit-note" id="noteMaternity"></span>
-            </td>
-            <td class="rate-input-cell"><input type="number" id="matE" value="0"></td>
-            <td class="rate-input-cell"><input type="number" id="matP" value="0"></td>
-          </tr>
-          <tr>
-            <td>
-              <span id="tdHousing">Housing Fund</span>
-              <span class="benefit-note" id="noteHousing"></span>
-            </td>
-            <td class="rate-input-cell"><input type="number" id="houE" value="7"></td>
-            <td class="rate-input-cell"><input type="number" id="houP" value="7"></td>
-          </tr>
-          <tr>
-            <td>
-              <span id="tdSupplementary">Supplementary HF (Optional)</span>
-              <span class="benefit-note" id="noteSupplementary"></span>
-            </td>
-            <td class="rate-input-cell"><input type="number" id="supE" value="2"></td>
-            <td class="rate-input-cell"><input type="number" id="supP" value="2"></td>
-          </tr>
-          <tr>
-            <td>
-              <span id="tdCorporate">Corporate Pension (Optional)</span>
-              <span class="benefit-note" id="noteCorporate"></span>
-            </td>
-            <td class="rate-input-cell"><input type="number" id="corE" value="8"></td>
-            <td class="rate-input-cell"><input type="number" id="corP" value="4"></td>
-          </tr>
-        </tbody>
-      </table>
+      <h3 data-i18n="secDeduct">Expenses, Tax-exempt Income &amp; Pre-tax Deductions</h3>
+      <p class="hint" data-i18n="deductIntro">Items deductible before tax under the applicable rules.</p>
 
-      <div class="form-group">
-        <label id="labelCommercial" for="comE">Commercial Insurance (Optional, Employer, CNY/year)</label>
-        <input type="number" id="comE" value="2000">
-      </div>
+      <div class="ded-list">
+        <div class="ded-header" data-i18n="grpExpenses">Expenses</div>
+        <div class="ded-row">
+          <span class="ded-label"><span data-i18n="labelExpenses">Expenses</span><small id="expensesHint"></small></span>
+          <input type="number" id="dedExpenses" value="0" readonly>
+        </div>
 
-      <h3 id="taxDeductionHeader">Tax Deduction Settings</h3>
-      
-      <div class="form-group">
-        <label id="labelCorpPensionDeduction" for="corpPensionDeductionRate">Enterprise Annuity Pre-tax Deduction Rate (%)</label>
-        <input type="number" id="corpPensionDeductionRate" value="67" min="0" max="100" step="1">
+        <div class="ded-header" data-i18n="grpExempt">Tax-exempt income</div>
+        <div class="ded-row">
+          <span class="ded-label"><span data-i18n="labelExemptAuthor">Tax-exempt part of author's remuneration</span><small id="exemptHint"></small></span>
+          <input type="number" id="dedExemptAuthor" value="0" readonly>
+        </div>
+        <div class="ded-row">
+          <span class="ded-label"><span data-i18n="labelExemptOther">Other tax-exempt income</span></span>
+          <input type="number" id="dedExemptOther" value="0">
+        </div>
+
+        <div class="ded-header" data-i18n="grpStandard">Standard deduction</div>
+        <div class="ded-row">
+          <span class="ded-label"><span data-i18n="labelStandard">Standard deduction</span><small data-i18n="standardHint">¥60,000 per year</small></span>
+          <input type="number" id="dedStandard" value="60000" readonly>
+        </div>
+
+        <div class="ded-header" data-i18n="secSpecial">Special deductions</div>
+        <div id="specialDeductions"></div>
+
+        <div class="ded-header" data-i18n="secAdditional">Additional special deductions</div>
+        <div class="ded-row">
+          <span class="ded-label"><span data-i18n="labelChildren">Children's education</span></span>
+          <input type="number" id="addChildren" value="0">
+        </div>
+        <div class="ded-row">
+          <span class="ded-label"><span data-i18n="labelEducation">Continuing education</span></span>
+          <input type="number" id="addEducation" value="0">
+        </div>
+        <div class="ded-row">
+          <span class="ded-label"><span data-i18n="labelIllness">Serious illness medical</span></span>
+          <input type="number" id="addIllness" value="0">
+        </div>
+        <div class="ded-row">
+          <span class="ded-label"><span data-i18n="labelLoan">Housing loan interest</span></span>
+          <input type="number" id="addLoan" value="0">
+        </div>
+        <div class="ded-row">
+          <span class="ded-label"><span data-i18n="labelRent">Housing rent</span></span>
+          <input type="number" id="addRent" value="0">
+        </div>
+        <div class="ded-row">
+          <span class="ded-label"><span data-i18n="labelElderly">Elderly support</span></span>
+          <input type="number" id="addElderly" value="0">
+        </div>
+        <div class="ded-row">
+          <span class="ded-label"><span data-i18n="labelInfant">Infant care under 3</span></span>
+          <input type="number" id="addInfant" value="0">
+        </div>
+
+        <div class="ded-header" data-i18n="secOther">Other deductions</div>
+        <div class="ded-row">
+          <span class="ded-label"><span data-i18n="labelCorpPension">Corporate pension (deductible amount)</span><small data-i18n="corpPensionHint">Enter the deductible amount directly.</small></span>
+          <input type="number" id="othCorpPension" value="0">
+        </div>
+        <div class="ded-row">
+          <span class="ded-label"><span data-i18n="labelHealth">Commercial health insurance</span></span>
+          <input type="number" id="othHealth" value="0">
+        </div>
+        <div class="ded-row">
+          <span class="ded-label"><span data-i18n="labelTaxes">Deductible taxes</span></span>
+          <input type="number" id="othTaxes" value="0">
+        </div>
+        <div class="ded-row">
+          <span class="ded-label"><span data-i18n="labelPersonalPension">Personal pension</span></span>
+          <input type="number" id="othPersonalPension" value="0">
+        </div>
+        <div class="ded-row">
+          <span class="ded-label"><span data-i18n="labelOther">Other</span></span>
+          <input type="number" id="othOther" value="0">
+        </div>
       </div>
     </section>
 
     <section class="results">
-      <h2 id="resultsHeader">Results</h2>
-      <div id="benefits"></div>
-      <div id="summary"></div>
-      
-      <h3 id="taxTableHeader">12-Month Tax Table</h3>
-      <table id="taxTable">
-        <thead>
-          <tr>
-            <th id="thMonth">Month</th>
-            <th id="thCumulative">Cumulative Taxable (¥)</th>
-            <th id="thRate">Rate %</th>
-            <th id="thQuickDed">Quick Deduction</th>
-            <th id="thTax">Tax (¥)</th>
-            <th id="thNetPay">Net Pay (¥)</th>
-            <th id="thNetPayUSD">Net Pay ($)</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+      <h2 data-i18n="resultsHeader">Annual Results</h2>
+
+      <h3 data-i18n="resTaxableHeader">Taxable Comprehensive Income</h3>
+      <div id="taxableSummary"></div>
+
+      <h3 data-i18n="resTaxHeader">Comprehensive Income Tax</h3>
+      <div id="taxSummary"></div>
+
+      <h3 data-i18n="resAnnualHeader">Annual Income &amp; Employer Cost</h3>
+      <div id="annualSummary"></div>
     </section>
   </main>
 
-  <script>
-    const cityConfig = {
-      "cities": {
-        "shanghai": {
-          "meta": {
-            "city_cn": "上海企业职工",
-            "year": 2025,
-            "social_insurance_base": { "lower": 7460, "upper": 37302 },
-            "housing_fund_base": { "lower": 2690, "upper": 37302 }
-          },
-          "benefits": {
-            "pension": {
-              "name": "Pension Insurance",
-              "cn": "养老保险",
-              "employer_rate": 0.16,
-              "employee_rate": 0.08,
-              "note_en": "",
-              "note_cn": "‌‌"
-            },
-            "medical": {
-              "name": "Medical Insurance",
-              "cn": "医疗保险",
-              "employer_rate": 0.09,
-              "employee_rate": 0.02,
-              "note_en": "",
-              "note_cn": ""
-            },
-            "unemployment": {
-              "name": "Unemployment Insurance",
-              "cn": "失业保险",
-              "employer_rate": 0.005,
-              "employee_rate": 0.005,
-              "note_en": "",
-              "note_cn": ""
-            },
-            "work_injury": {
-              "name": "Work Injury Insurance",
-              "cn": "工伤保险",
-              "employer_rate": 0.002,
-              "employee_rate": 0,
-              "note_en": "Rate varies by industry risk (0.2%–1.9%)",
-              "note_cn": "行业风险高低决定费率 (0.2%–1.9%)"
-            },
-            "maternity": {
-              "name": "Maternity Insurance",
-              "cn": "生育保险",
-              "employer_rate": 0,
-              "employee_rate": 0,
-              "note_en": "Merged into medical insurance",
-              "note_cn": "已并入医疗保险"
-            },
-            "housing_fund": {
-              "name": "Housing Provident Fund",
-              "cn": "住房公积金",
-              "employer_rate": 0.07,
-              "employee_rate": 0.07,
-              "range_allowed": [0.05, 0.07],
-              "note_en": "Company-defined, same for employer and employee (5%-7%)",
-              "note_cn": "企业可自主选择，单位和个人比例相同（5%-7%）。‌‌"
-            },
-            "supplementary_housing": {
-              "name": "Supplementary Housing Fund",
-              "cn": "补充公积金",
-              "employer_rate": 0.02,
-              "employee_rate": 0.02,
-              "range_allowed": [0.01, 0.06],
-              "note_en": "Company-defined, same for employer and employee (1%-6%)",
-              "note_cn": "企业可自主选择，单位和个人比例相同（1%-6%）。‌‌",
-              "optional": true
-            },
-            "corporate_pension": {
-              "name": "Corporate Pension",
-              "cn": "企业年金",
-              "employer_rate": 0.08,
-              "employee_rate": 0.04,
-              "note_en": "Company-defined",
-              "note_cn": "单位和个人比例可不同",
-              "optional": true,
-              "base": "base_salary"
-            },
-            "commercial_insurance": {
-              "name": "Group Commercial Insurance",
-              "cn": "团体商业保险",
-              "employer_paid": 2000,
-              "unit": "CNY/year",
-              "note_en": "Optional, enterprise-defined",
-              "note_cn": "可选，个人不需要缴纳",
-              "optional": true
-            }
-          }
-        },
-        "shanghai_flexible": {
-          "meta": {
-            "city_cn": "上海灵活就业",
-            "year": 2025,
-            "social_insurance_base": { "lower": 7460, "upper": 7460 },
-            "housing_fund_base": { "lower": 2690, "upper": 37302 }
-          },
-          "benefits": {
-            "pension": {
-              "name": "Pension Insurance",
-              "cn": "养老保险",
-              "employer_rate": 0,
-              "employee_rate": 0.20,
-              "note_en": "Flexible employment: employee pays 20% (8% to personal account, 12% to pooled account)",
-              "note_cn": "灵活就业：个人缴纳20% (8%进入个人账户，12%进入统筹账户)"
-            },
-            "medical": {
-              "name": "Medical Insurance",
-              "cn": "医疗保险",
-              "employer_rate": 0,
-              "employee_rate": 0.10,
-              "note_en": "Flexible employment: employee pays 10% (1.5% to personal account, 8.5% to pooled account)",
-              "note_cn": "灵活就业：个人缴纳10% (1.5%进入个人账户，用于支付门诊费用、药店购药等；8.5%进入统筹账户，用于支付住院费用、大病医疗费用等)"
-            },
-            "unemployment": {
-              "name": "Unemployment Insurance",
-              "cn": "失业保险",
-              "employer_rate": 0,
-              "employee_rate": 0,
-              "note_en": "Not applicable for flexible employment",
-              "note_cn": "灵活就业不适用"
-            },
-            "work_injury": {
-              "name": "Work Injury Insurance",
-              "cn": "工伤保险",
-              "employer_rate": 0,
-              "employee_rate": 0,
-              "note_en": "Not applicable for flexible employment",
-              "note_cn": "灵活就业不适用"
-            },
-            "maternity": {
-              "name": "Maternity Insurance",
-              "cn": "生育保险",
-              "employer_rate": 0,
-              "employee_rate": 0,
-              "note_en": "Not applicable for flexible employment",
-              "note_cn": "灵活就业不适用"
-            },
-            "housing_fund": {
-              "name": "Housing Provident Fund",
-              "cn": "住房公积金",
-              "employer_rate": 0,
-              "employee_rate": 0.24,
-              "range_allowed": [0.05, 0.24],
-              "note_en": "Flexible employment: employee pays 10%-24%",
-              "note_cn": "灵灵活就业人员可自主选择缴存比例，范围在10%至24%之间"
-            },
-            "supplementary_housing": {
-              "name": "Supplementary Housing Fund",
-              "cn": "补充公积金",
-              "employer_rate": 0,
-              "employee_rate": 0,
-              "note_en": "Not applicable for flexible employment",
-              "note_cn": "灵活就业不适用",
-              "optional": true
-            },
-            "corporate_pension": {
-              "name": "Corporate Pension",
-              "cn": "企业年金",
-              "employer_rate": 0,
-              "employee_rate": 0,
-              "note_en": "Not applicable for flexible employment",
-              "note_cn": "灵活就业不适用",
-              "optional": true,
-              "base": "base_salary"
-            },
-            "commercial_insurance": {
-              "name": "Group Commercial Insurance",
-              "cn": "团体商业保险",
-              "employer_paid": 0,
-              "unit": "CNY/year",
-              "note_en": "Not applicable for flexible employment",
-              "note_cn": "灵活就业不适用",
-              "optional": true
-            }
-          }
-        },
-        "hangzhou": {
-          "meta": {
-            "city_cn": "杭州企业职工",
-            "year": 2025,
-            "social_insurance_base": { "lower": 4986, "upper": 25299 },
-            "housing_fund_base": { "lower": 2490, "upper": 40694 }
-          },
-          "benefits": {
-            "pension": {
-              "name": "Pension Insurance",
-              "cn": "养老保险",
-              "employer_rate": 0.14,
-              "employee_rate": 0.08,
-              "note_en": "Employer contribution: 14%-16%",
-              "note_cn": "单位比例：14%-16%‌"
-            },
-            "medical": {
-              "name": "Medical Insurance",
-              "cn": "医疗保险",
-              "employer_rate": 0.095,
-              "employee_rate": 0.02,
-              "note_en": "Employer contribution: 9.5%-10.5%",
-              "note_cn": "单位比例：9.5%-10.5%"
-            },
-            "unemployment": {
-              "name": "Unemployment Insurance",
-              "cn": "失业保险",
-              "employer_rate": 0.005,
-              "employee_rate": 0.005,
-              "note_en": "",
-              "note_cn": "‌‌"
-            },
-            "work_injury": {
-              "name": "Work Injury Insurance",
-              "cn": "工伤保险",
-              "employer_rate": 0.002,
-              "employee_rate": 0,
-              "note_en": "Varies by industry (0.2%–0.8%)",
-              "note_cn": "行业风险高低决定费率 (0.2%–0.8%)"
-            },
-            "maternity": {
-              "name": "Maternity Insurance",
-              "cn": "生育保险",
-              "employer_rate": 0,
-              "employee_rate": 0,
-              "note_en": "Merged into medical insurance",
-              "note_cn": "已并入医疗保险"
-            },
-            "housing_fund": {
-              "name": "Housing Provident Fund",
-              "cn": "住房公积金",
-              "employer_rate": 0.12,
-              "employee_rate": 0.12,
-              "range_allowed": [0.05, 0.12],
-              "note_en": "Company-defined, same for employer and employee (5%-12%)",
-              "note_cn": "企业可自主选择，单位和个人比例相同（5%-12%）。‌‌"
-            },
-            "supplementary_housing": {
-              "name": "Supplementary Housing Fund",
-              "cn": "补充公积金",
-              "employer_rate": 0,
-              "employee_rate": 0,
-              "note_en": "Not applicable in Hangzhou",
-              "note_cn": "杭州没有补充公积金‌‌",
-              "optional": true
-            },
-            "corporate_pension": {
-              "name": "Corporate Pension",
-              "cn": "企业年金",
-              "employer_rate": 0,
-              "employee_rate": 0,
-              "note_en": "Company-defined",
-              "note_cn": "单位和个人比例可不同",
-              "optional": true,
-              "base": "base_salary"
-            },
-            "commercial_insurance": {
-              "name": "Group Commercial Insurance",
-              "cn": "团体商业保险",
-              "employer_paid": 0,
-              "unit": "CNY/year",
-              "note_en": "Optional, enterprise-defined",
-              "note_cn": "可选，个人不需要缴纳",
-              "optional": true
-            }
-          }
-        }
-      }
-    };
-
-    const translations = {
-      en: {
-        pageTitle: "China Benefit & Net Income Calculator",
-        inputHeader: "Input",
-        resultsHeader: "Results",
-        labelSalaryUSD: "Monthly Base Salary (USD)",
-        labelExchangeRate: "Exchange Rate (USD→CNY)",
-        labelSalaryRMB: "Monthly Base Salary (CNY)",
-        labelSalaryAnnualUSD: "Annual Base Salary (USD)",
-        labelSalaryAnnualRMB: "Annual Base Salary (CNY)",
-        labelCity: "City",
-        limitsHeader: "Social Insurance / Housing Fund Limits (2025.7-2026.6)",
-        labelSIUpper: "Social Insurance Upper Limit (CNY)",
-        labelSILower: "Social Insurance Lower Limit (CNY)",
-        labelHFUpper: "Housing Fund Upper Limit (CNY)",
-        labelHFLower: "Housing Fund Lower Limit (CNY)",
-        benefitRatesHeader: "Benefit Rates (Employer / Employee)",
-        thCategory: "Category",
-        thEmployer: "Employer %",
-        thEmployee: "Employee %",
-        tdPension: "Pension Insurance",
-        tdMedical: "Medical Insurance",
-        tdUnemployment: "Unemployment Insurance",
-        tdWorkInjury: "Work Injury Insurance",
-        tdMaternity: "Maternity Insurance",
-        tdHousing: "Housing Fund",
-        tdSupplementary: "Supplementary HF (Optional)",
-        tdCorporate: "Corporate Pension (Optional)",
-        labelCommercial: "Commercial Insurance (Optional, Employer, CNY/year)",
-        taxTableHeader: "12-Month Tax Table",
-        thMonth: "Month",
-        thCumulative: "Cumulative Taxable (¥)",
-        thRate: "Rate %",
-        thQuickDed: "Quick Deduction",
-        thTax: "Tax (¥)",
-        thNetPay: "Net Pay (¥)",
-        thNetPayUSD: "Net Pay ($)",
-        thTotal: "Total",
-        benefitCalcHeader: "Monthly Benefit Calculation",
-        benefitTableCategory: "Category",
-        benefitTableBase: "Base",
-        benefitTableEmployer: "Employer",
-        benefitTableEmployee: "Employee",
-        commercialInsuranceRow: "Commercial Insurance (Optional)",
-        monthlyTaxableIncome: "Monthly Taxable Income:",
-        taxableFormulaPrefix: "(Base Salary ¥",
-        taxableFormulaMid1: " - Deductible Employee Benefits ¥",
-        taxableFormulaMid2: " - Standard Deduction ¥",
-        taxableFormulaSuffix: ")",
-        taxDeductionHeader: "Tax Deduction Settings",
-        labelCorpPensionDeduction: "Enterprise Annuity Pre-tax Deduction Rate (%)",
-        employeeBenefitsBreakdown: "Deductible Employee Benefits Breakdown:",
-        corpPensionTotal: "Corporate Pension (Total):",
-        corpPensionDeductible: "Corporate Pension (Deductible):",
-        corpPensionNonDeductible: "Corporate Pension (Non-deductible):",
-        otherEmployeeBenefits: "Other Employee Benefits:",
-        totalEmployeeBenefits: "Total Deductible Employee Benefits:",
-        refreshRate: "Refresh",
-        rateStatusLoading: "Loading exchange rate...",
-        rateStatusFetched: "Fetched at {time}",
-        rateStatusFailed: "Failed to load rate. Using default."
-      },
-      zh: {
-        pageTitle: "中国社保公积金及税后收入计算器",
-        inputHeader: "输入",
-        resultsHeader: "结果",
-        labelSalaryUSD: "月薪 (美元)",
-        labelExchangeRate: "汇率 (美元→人民币)",
-        labelSalaryRMB: "月薪 (人民币)",
-        labelSalaryAnnualUSD: "年薪 (美元)",
-        labelSalaryAnnualRMB: "年薪 (人民币)",
-        labelCity: "城市",
-        limitsHeader: "社保 / 公积金缴费基数限制 (2025.7-2026.6)",
-        labelSIUpper: "社保缴费基数上限 (人民币)",
-        labelSILower: "社保缴费基数下限 (人民币)",
-        labelHFUpper: "公积金缴费基数上限 (人民币)",
-        labelHFLower: "公积金缴费基数下限 (人民币)",
-        benefitRatesHeader: "福利缴纳比例 (单位 / 个人)",
-        thCategory: "类别",
-        thEmployer: "单位 %",
-        thEmployee: "个人 %",
-        tdPension: "养老保险",
-        tdMedical: "医疗保险",
-        tdUnemployment: "失业保险",
-        tdWorkInjury: "工伤保险",
-        tdMaternity: "生育保险",
-        tdHousing: "住房公积金",
-        tdSupplementary: "补充公积金 (可选)",
-        tdCorporate: "企业年金 (可选)",
-        labelCommercial: "商业保险 (可选，单位，人民币/年)",
-        taxTableHeader: "12个月税额表",
-        thMonth: "月份",
-        thCumulative: "累计应税收入 (¥)",
-        thRate: "税率 %",
-        thQuickDed: "速算扣除数",
-        thTax: "应纳税额 (¥)",
-        thNetPay: "税后收入 (¥)",
-        thNetPayUSD: "税后收入 ($)",
-        thTotal: "总计",
-        benefitCalcHeader: "月度福利计算",
-        benefitTableCategory: "类别",
-        benefitTableBase: "缴费基数",
-        benefitTableEmployer: "单位",
-        benefitTableEmployee: "个人",
-        commercialInsuranceRow: "商业保险 (可选)",
-        monthlyTaxableIncome: "月度应税收入:",
-        taxableFormulaPrefix: "(基本工资 ¥",
-        taxableFormulaMid1: " - 可扣除的个人福利 ¥",
-        taxableFormulaMid2: " - 标准扣除 ¥",
-        taxableFormulaSuffix: ")",
-        taxDeductionHeader: "税前扣除设置",
-        labelCorpPensionDeduction: "个人缴纳企业年金税前扣除比例 (%)",
-        employeeBenefitsBreakdown: "可扣除的个人福利明细:",
-        corpPensionTotal: "企业年金 (总额):",
-        corpPensionDeductible: "企业年金 (可扣除):",
-        corpPensionNonDeductible: "企业年金 (不可扣除):",
-        otherEmployeeBenefits: "其他个人福利:",
-        totalEmployeeBenefits: "可扣除的个人福利合计:",
-        refreshRate: "刷新",
-        rateStatusLoading: "正在加载汇率...",
-        rateStatusFetched: "于 {time} 获取",
-        rateStatusFailed: "加载汇率失败，使用默认值。"
-      }
-    };
-
-    let currentLanguage = 'en';
-    let rateStatusState = null;
-    let lastRateUpdateTime = null;
-
-    function getLocaleForLanguage() {
-      return currentLanguage === 'zh' ? 'zh-CN' : 'en-US';
-    }
-
-    function formatRateFetchedMessage(date) {
-      const t = translations[currentLanguage];
-      const time = date.toLocaleString(getLocaleForLanguage());
-      return t.rateStatusFetched.replace('{time}', time);
-    }
-
-    function updateRateStatusDisplay() {
-      const rateStatusEl = document.getElementById('rateStatus');
-      if (!rateStatusEl || !rateStatusState) return;
-      const t = translations[currentLanguage];
-      if (rateStatusState === 'loading') {
-        rateStatusEl.textContent = t.rateStatusLoading;
-        rateStatusEl.style.color = 'var(--text-secondary)';
-      } else if (rateStatusState === 'updated' && lastRateUpdateTime) {
-        rateStatusEl.textContent = formatRateFetchedMessage(lastRateUpdateTime);
-        rateStatusEl.style.color = 'var(--success)';
-      } else if (rateStatusState === 'failed') {
-        rateStatusEl.textContent = t.rateStatusFailed;
-        rateStatusEl.style.color = 'var(--text-secondary)';
-      }
-    }
-
-    const benefitNoteMapping = {
-      'notePension': 'pension',
-      'noteMedical': 'medical',
-      'noteUnemployment': 'unemployment',
-      'noteWorkInjury': 'work_injury',
-      'noteMaternity': 'maternity',
-      'noteHousing': 'housing_fund',
-      'noteSupplementary': 'supplementary_housing',
-      'noteCorporate': 'corporate_pension'
-    };
-
-    function updateBenefitNotes() {
-      const city = citySelect.value;
-      const config = cityConfig.cities[city];
-      
-      Object.keys(benefitNoteMapping).forEach(noteId => {
-        const benefitKey = benefitNoteMapping[noteId];
-        const benefit = config.benefits[benefitKey];
-        const note = currentLanguage === 'zh' ? (benefit.note_cn || '') : (benefit.note_en || '');
-        document.getElementById(noteId).innerText = note;
-      });
-    }
-
-    function updateLanguage(lang) {
-      currentLanguage = lang;
-      const t = translations[lang];
-      
-      // Update all static text elements
-      document.getElementById('pageTitle').innerText = t.pageTitle;
-      document.getElementById('inputHeader').innerText = t.inputHeader;
-      document.getElementById('resultsHeader').innerText = t.resultsHeader;
-      document.getElementById('limitsHeader').innerText = t.limitsHeader;
-      document.getElementById('benefitRatesHeader').innerText = t.benefitRatesHeader;
-      document.getElementById('taxTableHeader').innerText = t.taxTableHeader;
-      
-      // Update labels (preserve input elements)
-      document.getElementById('labelSalaryUSD').childNodes[0].nodeValue = t.labelSalaryUSD;
-      document.getElementById('labelExchangeRate').childNodes[0].nodeValue = t.labelExchangeRate;
-      document.getElementById('labelSalaryRMB').childNodes[0].nodeValue = t.labelSalaryRMB;
-      document.getElementById('labelSalaryAnnualUSD').childNodes[0].nodeValue = t.labelSalaryAnnualUSD;
-      document.getElementById('labelSalaryAnnualRMB').childNodes[0].nodeValue = t.labelSalaryAnnualRMB;
-      document.getElementById('labelCity').childNodes[0].nodeValue = t.labelCity;
-      document.getElementById('labelSIUpper').childNodes[0].nodeValue = t.labelSIUpper;
-      document.getElementById('labelSILower').childNodes[0].nodeValue = t.labelSILower;
-      document.getElementById('labelHFUpper').childNodes[0].nodeValue = t.labelHFUpper;
-      document.getElementById('labelHFLower').childNodes[0].nodeValue = t.labelHFLower;
-      document.getElementById('labelCommercial').childNodes[0].nodeValue = t.labelCommercial;
-      document.getElementById('taxDeductionHeader').innerText = t.taxDeductionHeader;
-      document.getElementById('labelCorpPensionDeduction').childNodes[0].nodeValue = t.labelCorpPensionDeduction;
-      
-      // Update table headers
-      document.getElementById('thCategory').innerText = t.thCategory;
-      document.getElementById('thEmployer').innerText = t.thEmployer;
-      document.getElementById('thEmployee').innerText = t.thEmployee;
-      
-      // Update benefit categories
-      document.getElementById('tdPension').innerText = t.tdPension;
-      document.getElementById('tdMedical').innerText = t.tdMedical;
-      document.getElementById('tdUnemployment').innerText = t.tdUnemployment;
-      document.getElementById('tdWorkInjury').innerText = t.tdWorkInjury;
-      document.getElementById('tdMaternity').innerText = t.tdMaternity;
-      document.getElementById('tdHousing').innerText = t.tdHousing;
-      document.getElementById('tdSupplementary').innerText = t.tdSupplementary;
-      document.getElementById('tdCorporate').innerText = t.tdCorporate;
-      
-      // Update tax table headers
-      document.getElementById('thMonth').innerText = t.thMonth;
-      document.getElementById('thCumulative').innerText = t.thCumulative;
-      document.getElementById('thRate').innerText = t.thRate;
-      document.getElementById('thQuickDed').innerText = t.thQuickDed;
-      document.getElementById('thTax').innerText = t.thTax;
-      document.getElementById('thNetPay').innerText = t.thNetPay;
-      document.getElementById('thNetPayUSD').innerText = t.thNetPayUSD;
-      
-      // Update benefit notes
-      updateBenefitNotes();
-      
-      // Update refresh button text
-      document.getElementById('refreshText').innerText = t.refreshRate;
-
-      updateRateStatusDisplay();
-      
-      // Recalculate to update dynamic content
-      calculate();
-    }
-
-    const rateInput = document.getElementById('rate');
-    const salaryUSD = document.getElementById('salaryUSD');
-    const salaryRMB = document.getElementById('salaryRMB');
-    const salaryAnnualUSD = document.getElementById('salaryAnnualUSD');
-    const salaryAnnualRMB = document.getElementById('salaryAnnualRMB');
-    const citySelect = document.getElementById('city');
-    const languageSelect = document.getElementById('languageSelect');
-    const MONTHS_PER_YEAR = 12;
-
-    function getExchangeRate() {
-      return parseFloat(rateInput.value) || 7.12;
-    }
-
-    function formatAmountValue(n) {
-      return Number(n).toFixed(2);
-    }
-
-    function syncFromMonthlyUSD() {
-      const rate = getExchangeRate();
-      const monthlyUSD = parseFloat(salaryUSD.value) || 0;
-      const monthlyRMB = monthlyUSD * rate;
-      salaryRMB.value = formatAmountValue(monthlyRMB);
-      salaryAnnualUSD.value = formatAmountValue(monthlyUSD * MONTHS_PER_YEAR);
-      salaryAnnualRMB.value = formatAmountValue(monthlyRMB * MONTHS_PER_YEAR);
-    }
-
-    function syncFromMonthlyRMB() {
-      const rate = getExchangeRate();
-      const monthlyRMB = parseFloat(salaryRMB.value) || 0;
-      const monthlyUSD = monthlyRMB / rate;
-      salaryUSD.value = formatAmountValue(monthlyUSD);
-      salaryAnnualUSD.value = formatAmountValue(monthlyUSD * MONTHS_PER_YEAR);
-      salaryAnnualRMB.value = formatAmountValue(monthlyRMB * MONTHS_PER_YEAR);
-    }
-
-    function syncFromAnnualUSD() {
-      const rate = getExchangeRate();
-      const annualUSD = parseFloat(salaryAnnualUSD.value) || 0;
-      const monthlyUSD = annualUSD / MONTHS_PER_YEAR;
-      const monthlyRMB = monthlyUSD * rate;
-      salaryUSD.value = formatAmountValue(monthlyUSD);
-      salaryRMB.value = formatAmountValue(monthlyRMB);
-      salaryAnnualRMB.value = formatAmountValue(annualUSD * rate);
-    }
-
-    function syncFromAnnualRMB() {
-      const rate = getExchangeRate();
-      const annualRMB = parseFloat(salaryAnnualRMB.value) || 0;
-      const monthlyRMB = annualRMB / MONTHS_PER_YEAR;
-      const monthlyUSD = monthlyRMB / rate;
-      salaryRMB.value = formatAmountValue(monthlyRMB);
-      salaryUSD.value = formatAmountValue(monthlyUSD);
-      salaryAnnualUSD.value = formatAmountValue(monthlyUSD * MONTHS_PER_YEAR);
-    }
-
-    function syncCurrency(e) {
-      if (e.target === salaryUSD || e.target === rateInput) {
-        syncFromMonthlyUSD();
-      } else if (e.target === salaryRMB) {
-        syncFromMonthlyRMB();
-      } else if (e.target === salaryAnnualUSD) {
-        syncFromAnnualUSD();
-      } else if (e.target === salaryAnnualRMB) {
-        syncFromAnnualRMB();
-      }
-      calculate();
-    }
-
-    rateInput.addEventListener('input', syncCurrency);
-    salaryUSD.addEventListener('input', syncCurrency);
-    salaryRMB.addEventListener('input', syncCurrency);
-    salaryAnnualUSD.addEventListener('input', syncCurrency);
-    salaryAnnualRMB.addEventListener('input', syncCurrency);
-
-    // Language selector
-    languageSelect.addEventListener('change', function() {
-      updateLanguage(this.value);
-    });
-
-    // Update form values when city changes
-    function loadCityConfig(){
-      const city = citySelect.value;
-      const config = cityConfig.cities[city];
-      
-      // Update base limits
-      document.getElementById('siUpper').value = config.meta.social_insurance_base.upper;
-      document.getElementById('siLower').value = config.meta.social_insurance_base.lower;
-      document.getElementById('hfUpper').value = config.meta.housing_fund_base.upper;
-      document.getElementById('hfLower').value = config.meta.housing_fund_base.lower;
-      
-      // Update benefit rates
-      document.getElementById('penE').value = parseFloat((config.benefits.pension.employer_rate * 100).toFixed(2));
-      document.getElementById('penP').value = parseFloat((config.benefits.pension.employee_rate * 100).toFixed(2));
-      document.getElementById('medE').value = parseFloat((config.benefits.medical.employer_rate * 100).toFixed(2));
-      document.getElementById('medP').value = parseFloat((config.benefits.medical.employee_rate * 100).toFixed(2));
-      document.getElementById('uneE').value = parseFloat((config.benefits.unemployment.employer_rate * 100).toFixed(2));
-      document.getElementById('uneP').value = parseFloat((config.benefits.unemployment.employee_rate * 100).toFixed(2));
-      document.getElementById('injE').value = parseFloat((config.benefits.work_injury.employer_rate * 100).toFixed(2));
-      document.getElementById('injP').value = parseFloat((config.benefits.work_injury.employee_rate * 100).toFixed(2));
-      document.getElementById('matE').value = parseFloat((config.benefits.maternity.employer_rate * 100).toFixed(2));
-      document.getElementById('matP').value = parseFloat((config.benefits.maternity.employee_rate * 100).toFixed(2));
-      document.getElementById('houE').value = parseFloat((config.benefits.housing_fund.employer_rate * 100).toFixed(2));
-      document.getElementById('houP').value = parseFloat((config.benefits.housing_fund.employee_rate * 100).toFixed(2));
-      document.getElementById('supE').value = parseFloat((config.benefits.supplementary_housing.employer_rate * 100).toFixed(2));
-      document.getElementById('supP').value = parseFloat((config.benefits.supplementary_housing.employee_rate * 100).toFixed(2));
-      document.getElementById('corE').value = parseFloat((config.benefits.corporate_pension.employer_rate * 100).toFixed(2));
-      document.getElementById('corP').value = parseFloat((config.benefits.corporate_pension.employee_rate * 100).toFixed(2));
-      document.getElementById('comE').value = config.benefits.commercial_insurance.employer_paid;
-      
-      // Update benefit notes
-      updateBenefitNotes();
-      
-      calculate();
-    }
-    
-    citySelect.addEventListener('change', loadCityConfig);
-
-    const taxBrackets=[
-      {max:36000,rate:0.03,ded:0},
-      {max:144000,rate:0.10,ded:2520},
-      {max:300000,rate:0.20,ded:16920},
-      {max:420000,rate:0.25,ded:31920},
-      {max:660000,rate:0.30,ded:52920},
-      {max:960000,rate:0.35,ded:85920},
-      {max:Infinity,rate:0.45,ded:181920}
-    ];
-
-    const ids=['pen','med','une','inj','mat','hou','sup','cor'];
-    const idNames={
-      'pen':'Pension Insurance',
-      'med':'Medical Insurance', 
-      'une':'Unemployment Insurance',
-      'inj':'Work Injury Insurance',
-      'mat':'Maternity Insurance',
-      'hou':'Housing Fund',
-      'sup':'Supplementary HF (Optional)',
-      'cor':'Corporate Pension (Optional)'
-    };
-    const idToElementId={
-      'pen':'tdPension',
-      'med':'tdMedical',
-      'une':'tdUnemployment',
-      'inj':'tdWorkInjury',
-      'mat':'tdMaternity',
-      'hou':'tdHousing',
-      'sup':'tdSupplementary',
-      'cor':'tdCorporate'
-    };
-
-    // Format number with thousand separators
-    function formatAmount(num, decimals = 0) {
-      return num.toLocaleString('en-US', {
-        minimumFractionDigits: decimals,
-        maximumFractionDigits: decimals
-      });
-    }
-
-    function calculate(){
-      const base=parseFloat(salaryRMB.value)||0;
-      const siU=parseFloat(siUpper.value),siL=parseFloat(siLower.value);
-      const hfU=parseFloat(hfUpper.value),hfL=parseFloat(hfLower.value);
-      const city = citySelect.value;
-
-      let siBase=Math.min(Math.max(base,siL),siU);
-      let hfBase=Math.min(Math.max(base,hfL),hfU);
-      if (city === 'shanghai_flexible') {
-        hfBase = hfU;
-      }
-
-      const config = cityConfig.cities[city];
-
-      // Get translations for current language
-      const t = translations[currentLanguage];
-
-      const rate = parseFloat(rateInput.value)||7.12;
-      
-      let empE=0, empP=0;
-      let corpPensionEmployeeAmt = 0; // Track corporate pension employee contribution separately
-      let details=`<h3>${t.benefitCalcHeader}</h3><table><tr><th>${t.benefitTableCategory}</th><th>${t.benefitTableBase}</th><th>${t.benefitTableEmployer} (¥)</th><th>${t.benefitTableEmployer} ($)</th><th>${t.benefitTableEmployee} (¥)</th><th>${t.benefitTableEmployee} ($)</th></tr>`;
-      ids.forEach(id=>{
-        const e=document.getElementById(id+'E').value/100;
-        const p=document.getElementById(id+'P').value/100;
-        let b=(id==='hou'||id==='sup')?hfBase:(id==='cor'?base:siBase);
-        const eAmt=b*e;
-        let pAmt=b*p;
-        
-        empE+=eAmt;
-        empP+=pAmt;
-        
-        // Track corporate pension employee contribution
-        if(id === 'cor') {
-          corpPensionEmployeeAmt = pAmt;
-        }
-        
-        // Use translated category name
-        const categoryName = document.getElementById(idToElementId[id]).innerText;
-        
-        details+=`<tr><td>${categoryName}</td><td>${formatAmount(b)}</td><td>${formatAmount(eAmt)}</td><td>${formatAmount(eAmt/rate)}</td><td>${formatAmount(pAmt)}</td><td>${formatAmount(pAmt/rate)}</td></tr>`;
-      });
-
-      const comE=parseFloat(document.getElementById('comE').value)||0;
-      const comEMonthly=comE/12;
-      empE+=comEMonthly;
-      
-      // Add commercial insurance row to the table
-      if(comE > 0){
-        details+=`<tr><td>${t.commercialInsuranceRow}</td><td>${formatAmount(comE)}/year</td><td>${formatAmount(comEMonthly)}</td><td>${formatAmount(comEMonthly/rate)}</td><td>0</td><td>0</td></tr>`;
-      }
-
-      // Add total row
-      details+=`<tr style="font-weight: bold; background-color: #f8fafc;"><td><b>${t.thTotal}</b></td><td></td><td><b>${formatAmount(empE)}</b></td><td><b>${formatAmount(empE/rate)}</b></td><td><b>${formatAmount(empP)}</b></td><td><b>${formatAmount(empP/rate)}</b></td></tr>`;
-
-      details+="</table>";
-      document.getElementById('benefits').innerHTML=details;
-
-      const standardDeduction=5000;
-      
-      // Apply enterprise annuity pre-tax deduction rate
-      const corpPensionDeductionRate = parseFloat(document.getElementById('corpPensionDeductionRate').value) || 67;
-      const corpPensionDeductibleAmt = corpPensionEmployeeAmt * (corpPensionDeductionRate / 100);
-      const corpPensionNonDeductibleAmt = corpPensionEmployeeAmt - corpPensionDeductibleAmt;
-      
-      // Monthly taxable = Base - Standard Deduction - (Employee Benefits - Corp Pension + Corp Pension * Deduction Rate)
-      // Which simplifies to: Base - Standard Deduction - Employee Benefits + Corp Pension * (1 - Deduction Rate)
-      const monthlyTaxable=Math.max(base-standardDeduction-empP+corpPensionNonDeductibleAmt,0);
-
-      let tbody=document.querySelector('#taxTable tbody');
-      tbody.innerHTML='';
-      let prevTax=0;
-      let totalTaxAmount=0;
-      let totalNetPayAmount=0;
-      for(let m=1;m<=12;m++){
-        const cum=monthlyTaxable*m;
-        const br=taxBrackets.find(b=>cum<=b.max);
-        const totalTax=cum*br.rate-br.ded;
-        const monthTax=Math.max(totalTax-prevTax,0);
-        prevTax=totalTax;
-        const net=monthlyTaxable-monthTax;
-        totalTaxAmount+=monthTax;
-        totalNetPayAmount+=net;
-        const tr=document.createElement('tr');
-        tr.innerHTML=`<td>${m}</td><td>${formatAmount(cum)}</td><td>${(br.rate*100).toFixed(0)}%</td><td>${formatAmount(br.ded, 0)}</td><td>${formatAmount(monthTax)}</td><td>${formatAmount(net)}</td><td>${formatAmount(net/rate)}</td>`;
-        tbody.appendChild(tr);
-      }
-      
-      // Add total row
-      const totalRow=document.createElement('tr');
-      totalRow.style.fontWeight='bold';
-      totalRow.style.backgroundColor='#f8fafc';
-      totalRow.innerHTML=`<td><b>${t.thTotal}</b></td><td></td><td></td><td></td><td><b>${formatAmount(totalTaxAmount)}</b></td><td><b>${formatAmount(totalNetPayAmount)}</b></td><td><b>${formatAmount(totalNetPayAmount/rate)}</b></td>`;
-      tbody.appendChild(totalRow);
-
-      // Calculate the adjusted employee benefits for display (subtract non-deductible portion)
-      const adjustedEmpP = empP - corpPensionNonDeductibleAmt;
-      
-      // Calculate other employee benefits (excluding corporate pension)
-      const otherEmployeeBenefitsAmt = empP - corpPensionEmployeeAmt;
-      
-      document.getElementById('summary').innerHTML=
-        `<div class="summary-box">
-          <p><b>${t.monthlyTaxableIncome}</b> ¥${formatAmount(monthlyTaxable)} ($${formatAmount(monthlyTaxable/rate)})
-            <small>${t.taxableFormulaPrefix}${formatAmount(base)}${t.taxableFormulaMid1}${formatAmount(adjustedEmpP)}${t.taxableFormulaMid2}${formatAmount(standardDeduction, 0)}${t.taxableFormulaSuffix}</small>
-          </p>
-          <div style="margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 0.5rem; border-left: 3px solid #3b82f6;">
-            <p style="margin-bottom: 0.5rem; font-weight: 600; color: #1e40af;">${t.employeeBenefitsBreakdown}</p>
-            <p style="margin: 0.25rem 0; font-size: 0.9rem;"><b>${t.corpPensionTotal}</b> ¥${formatAmount(corpPensionEmployeeAmt)}</p>
-            <p style="margin: 0.25rem 0; font-size: 0.9rem; color: #059669;"><b>${t.corpPensionDeductible}</b> ¥${formatAmount(corpPensionDeductibleAmt)} - ${corpPensionDeductionRate}%</p>
-            <p style="margin: 0.25rem 0; font-size: 0.9rem; color: #dc2626;"><b>${t.corpPensionNonDeductible}</b> ¥${formatAmount(corpPensionNonDeductibleAmt)} - ${100-corpPensionDeductionRate}%</p>
-            <p style="margin: 0.25rem 0; font-size: 0.9rem;"><b>${t.otherEmployeeBenefits}</b> ¥${formatAmount(otherEmployeeBenefitsAmt)}</p>
-            <p style="margin: 0.5rem 0 0 0; font-weight: 600; color: #1e40af; border-top: 1px solid #e5e7eb; padding-top: 0.5rem;"><b>${t.totalEmployeeBenefits}</b> ¥${formatAmount(adjustedEmpP)} ($${formatAmount(adjustedEmpP/rate)})</p>
-          </div>
-        </div>`;
-    }
-
-    document.querySelectorAll('input,select').forEach(el=>el.addEventListener('input',calculate));
-    
-    // Exchange rate functionality
-    const refreshRateBtn = document.getElementById('refreshRateBtn');
-    const refreshIcon = document.getElementById('refreshIcon');
-    const refreshText = document.getElementById('refreshText');
-    const rateStatus = document.getElementById('rateStatus');
-    
-    // Function to fetch exchange rate
-    async function fetchExchangeRate() {
-      try {
-        setLoadingState(true);
-        rateStatusState = 'loading';
-        updateRateStatusDisplay();
-        
-        // Try multiple APIs for better reliability
-        const apis = [
-          'https://api.exchangerate-api.com/v4/latest/USD',
-          'https://api.fixer.io/latest?base=USD&symbols=CNY',
-          'https://api.currencyapi.com/v3/latest?apikey=free&currencies=CNY&base_currency=USD'
-        ];
-        
-        for (const apiUrl of apis) {
-          try {
-            const response = await fetch(apiUrl);
-            if (!response.ok) throw new Error('API error');
-            
-            const data = await response.json();
-            let rate = null;
-            
-            // Parse different API response formats
-            if (data.rates && data.rates.CNY) {
-              rate = data.rates.CNY;
-            } else if (data.data && data.data.CNY) {
-              rate = data.data.CNY.value;
-            }
-            
-            if (rate && rate > 0) {
-              rateInput.value = parseFloat(rate.toFixed(4));
-              rateStatusState = 'updated';
-              lastRateUpdateTime = new Date();
-              updateRateStatusDisplay();
-              // Trigger currency sync to update CNY salary based on current USD salary
-              syncCurrency({ target: rateInput });
-              return;
-            }
-          } catch (error) {
-            console.log(`API ${apiUrl} failed:`, error);
-            continue;
-          }
-        }
-        
-        throw new Error('All APIs failed');
-        
-      } catch (error) {
-        console.error('Failed to fetch exchange rate:', error);
-        rateStatusState = 'failed';
-        updateRateStatusDisplay();
-      } finally {
-        setLoadingState(false);
-      }
-    }
-    
-    // Function to set loading state
-    function setLoadingState(loading) {
-      if (loading) {
-        refreshIcon.textContent = '⏳';
-        refreshIcon.style.animation = 'spin 1s linear infinite';
-        refreshRateBtn.disabled = true;
-        refreshRateBtn.style.opacity = '0.7';
-      } else {
-        refreshIcon.textContent = '🔄';
-        refreshIcon.style.animation = 'none';
-        refreshRateBtn.disabled = false;
-        refreshRateBtn.style.opacity = '1';
-      }
-    }
-    
-    // Add CSS animation for loading spinner
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-      }
-    `;
-    document.head.appendChild(style);
-    
-    // Event listener for refresh button
-    refreshRateBtn.addEventListener('click', fetchExchangeRate);
-    
-    // Load exchange rate on page load
-    fetchExchangeRate();
-    
-    // Load initial city config
-    loadCityConfig();
-
-    // Initialize salary fields (monthly ↔ annual, USD ↔ CNY)
-    syncFromMonthlyUSD();
-  </script>
+  <script src="policy-data.js"></script>
+  <script src="calc-engine.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
