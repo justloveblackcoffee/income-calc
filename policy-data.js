@@ -4,6 +4,27 @@
  * Structure: profile (city + employment type) -> policy periods -> base groups + items.
  * Each period records its own effective range and data source, so a calendar year can
  * span several periods and each month resolves independently.
+ *
+ * When adding a period, record its real effective range, its source and whether the figures
+ * are official — never present an estimate as published policy. Periods do not have to share
+ * a cycle: Shanghai publishes July-to-June, while Zhejiang publishes per calendar year and may
+ * announce mid-year with retroactive effect back to January.
+ *
+ * Sources:
+ *   Zhejiang flexible employment pension rules:
+ *     https://zjjcmspublic.oss-cn-hangzhou-zwynet-d01-a.internet.cloud.zj.gov.cn/jcms_files/jcms1/web2758/site/attach/0/1d871e9e532e490ea3762bf9e1456241.pdf
+ *   Zhejiang 2025 contribution base limits:
+ *     https://zhejiang.chinatax.gov.cn/art/2025/12/11/art_13314_645797.html
+ *   Zhejiang 2026 contribution wage declaration notice (no new limits published yet):
+ *     https://zhejiang.chinatax.gov.cn/art/2026/1/22/art_8414_84395.html
+ *   Huzhou basic medical insurance rules:
+ *     https://ybj.huzhou.gov.cn/art/2020/12/15/art_1229515961_1631083.html
+ *   Huzhou flexible employment housing fund pilot:
+ *     https://zc.51shebao.com/detail/829767
+ *     https://zj.people.com.cn/n2/2023/0830/c186327-40550597.html
+ *
+ * Not implemented yet: field-level inheritance (taking newly published bases while carrying
+ * older rates forward) — a month either matches a period or carries the whole previous one.
  */
 (function (root) {
   const POLICY_DATA = {
