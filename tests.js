@@ -28,7 +28,8 @@ check('Shanghai 2026 months are official, not carried over',
 
 /* Huzhou has no 2026 configuration yet, so every month carries the 2025 data forward. */
 const huzhou = E.buildYearPlan('huzhou_flexible', 2026, { monthlySalary: 20000 });
-check('Huzhou 2026 falls back to the 2025 period', huzhou.every(m => m.carried && m.period.from === 202501), true);
+check('Huzhou 2026 falls back to the latest 2025 period',
+  huzhou.every(m => m.carried && m.period.from === 202509), true);
 check('Huzhou pension base defaults to the lower limit', huzhou[0].bases.pension.value, 4986);
 check('Huzhou medical base is fixed and not editable',
   [huzhou[0].bases.medical.value, huzhou[0].bases.medical.editable], [4986, false]);
@@ -36,10 +37,27 @@ check('Huzhou medical base is fixed and not editable',
 /* Documented monthly minimums for Huzhou flexible employment. */
 const huzhouAnnual = E.computeAnnualContributions(huzhou, { monthlySalary: 20000 });
 check('Huzhou pension is 997.20 a month', E.round2(huzhouAnnual.items.pension.employeeAnnual / 12), 997.2);
-check('Huzhou medical is 473.67 a month', E.round2(huzhouAnnual.items.medical.employeeAnnual / 12), 473.67);
+check('Huzhou medical follows the unified standard of 518.54 a month',
+  E.round2(huzhouAnnual.items.medical.employeeAnnual / 12), 518.54);
+
+/* The unified medical standard rose in 2025.09, so that year is split across two periods. */
+const huzhou2025 = E.buildYearPlan('huzhou_flexible', 2025, { monthlySalary: 20000 });
+check('Huzhou 2025 switches periods in September',
+  [huzhou2025[7].period.from, huzhou2025[8].period.from], [202501, 202509]);
+check('Huzhou 2025 medical is 473.67 before September and 518.54 from September',
+  E.round2(E.computeAnnualContributions(huzhou2025, { monthlySalary: 20000 }).items.medical.employeeAnnual),
+  E.round2(473.67 * 8 + 518.54 * 4));
+
+/* A self-selected pension base must not move the unified medical base. */
+const huzhouHighPension = E.buildYearPlan('huzhou_flexible', 2026, {
+  monthlySalary: 20000,
+  baseOverrides: { '202601:pension': 25299 }
+});
+check('raising the pension base leaves the medical base untouched',
+  [huzhouHighPension[0].bases.pension.value, huzhouHighPension[0].bases.medical.value], [25299, 4986]);
 check('Huzhou housing fund defaults to zero', huzhouAnnual.items.housing_fund.employeeAnnual, 0);
 
-/* Self-determined housing fund deposits are capped per month and fully deductible. */
+/* Self-determined housing fund deposits are capped per month; the deduction has its own, lower cap. */
 const huzhouWithHf = E.buildYearPlan('huzhou_flexible', 2026, {
   monthlySalary: 20000,
   amountOverrides: { '202601:housing_fund': 60000, '202602:housing_fund': 3000 }
@@ -48,7 +66,8 @@ check('deposit above 50,000 is clamped and flagged',
   [huzhouWithHf[0].amounts.housing_fund.value, huzhouWithHf[0].amounts.housing_fund.adjusted], [50000, true]);
 const huzhouHfAnnual = E.computeAnnualContributions(huzhouWithHf, { monthlySalary: 20000 });
 check('deposits sum across months', huzhouHfAnnual.items.housing_fund.employeeAnnual, 53000);
-check('deductible amount equals the deposited amount', huzhouHfAnnual.items.housing_fund.deductibleAnnual, 53000);
+check('deduction is capped at 3,622.32 a month, uncapped deposits below it deduct in full',
+  huzhouHfAnnual.items.housing_fund.deductibleAnnual, E.round2(3622.32 + 3000));
 
 /* Shanghai flexible employment defaults: social insurance at the floor, housing fund at the ceiling. */
 const shFlex = E.buildYearPlan('shanghai_flexible', 2026, { monthlySalary: 20000 });

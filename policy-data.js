@@ -17,7 +17,8 @@
  *     https://zhejiang.chinatax.gov.cn/art/2025/12/11/art_13314_645797.html
  *   Zhejiang 2026 contribution wage declaration notice (no new limits published yet):
  *     https://zhejiang.chinatax.gov.cn/art/2026/1/22/art_8414_84395.html
- *   Huzhou basic medical insurance rules:
+ *   Huzhou basic medical insurance rules (flexible employment pays a unified standard,
+ *   not a self-selected base; the standard is 518.54/month from 2025.09):
  *     https://ybj.huzhou.gov.cn/art/2020/12/15/art_1229515961_1631083.html
  *   Huzhou flexible employment housing fund pilot:
  *     https://zc.51shebao.com/detail/829767
@@ -116,14 +117,25 @@
       huzhou_flexible: [
         {
           from: 202501,
-          to: 202512,
+          to: 202508,
           official: true,
           source: '浙江省 2025 年社会保险费缴费基数上下限说明',
           baseGroups: {
             pension: { lower: 4986, upper: 25299, defaultRule: 'lower', editable: true },
             medical: { lower: 4986, upper: 4986, defaultRule: 'lower', editable: false }
           },
-          items: huzhouFlexibleItems()
+          items: huzhouFlexibleItems(0.095)
+        },
+        {
+          from: 202509,
+          to: 202512,
+          official: true,
+          source: '湖州市职工基本医疗保险灵活就业人员缴费标准（2025 年 9 月起）',
+          baseGroups: {
+            pension: { lower: 4986, upper: 25299, defaultRule: 'lower', editable: true },
+            medical: { lower: 4986, upper: 4986, defaultRule: 'lower', editable: false }
+          },
+          items: huzhouFlexibleItems(0.104)
         }
       ]
     }
@@ -186,7 +198,11 @@
     };
   }
 
-  function huzhouFlexibleItems() {
+  /* Medical is a unified local standard, not a self-selected base: 4,986 x 10.4% = 518.54/month
+     from 2025.09 (of which 2% = 99.72 goes to the personal account). Only the rate changed. */
+  function huzhouFlexibleItems(medicalRate) {
+    const pooledRate = Math.round((medicalRate - 0.02) * 1000) / 1000;
+    const monthlyMedical = Math.round(4986 * medicalRate * 100) / 100;
     return {
       pension: {
         baseGroup: 'pension', employerRate: 0, employeeRate: 0.20, deductible: true,
@@ -194,9 +210,11 @@
         note_cn: '个人缴费比例 20%，其中 8% 计入个人账户'
       },
       medical: {
-        baseGroup: 'medical', employerRate: 0, employeeRate: 0.095, deductible: true,
-        note_en: 'Fixed policy base; 7.5% pooled, 2% to personal account',
-        note_cn: '按政策固定基数缴纳，7.5% 进入统筹基金，2% 划入个人账户'
+        baseGroup: 'medical', employerRate: 0, employeeRate: medicalRate, deductible: true,
+        note_en: `Unified local standard: ¥${monthlyMedical.toFixed(2)}/month `
+          + `(${(pooledRate * 100).toFixed(1)}% pooled, 2% to personal account)`,
+        note_cn: `按当地统一缴费标准 ${monthlyMedical.toFixed(2)} 元/月缴纳`
+          + `（${(pooledRate * 100).toFixed(1)}% 进入统筹基金，2% 划入个人账户）`
       },
       unemployment: { baseGroup: 'pension', employerRate: 0, employeeRate: 0, applicable: false },
       work_injury: { baseGroup: 'pension', employerRate: 0, employeeRate: 0, applicable: false },
@@ -205,9 +223,17 @@
         note_en: 'Covered by the local medical insurance policy', note_cn: '包含在当地医保政策中'
       },
       housing_fund: {
+        /* Deposits are self-determined up to 50,000/month, but only 12% of the maximum
+           deposit wage base (30,186) is deductible: 30,186 x 12% = 3,622.32. That base has
+           been held at 30,186 since 2022 (unchanged in 2024 and in the fund centre's 2025
+           annual report), so carrying it into 2026 is safe even though no 2026 document
+           writes 3,622.32 down as a single figure. */
         mode: 'monthly_amount', maxMonthlyAmount: 50000, defaultMonthlyAmount: 0, deductible: true,
-        note_en: 'Self-determined deposits; the deductible amount equals the deposited amount',
-        note_cn: '自主决定缴存金额，允许税前扣除金额取实际缴存金额'
+        maxDeductibleMonthlyAmount: 3622.32,
+        note_en: 'Self-determined deposit up to ¥50,000/month; pre-tax deduction capped at ¥3,622.32/month '
+          + '(12% x the ¥30,186 deposit wage base, unchanged since 2022; ¥43,467.84/year)',
+        note_cn: '自主决定缴存金额，最高 50,000 元/月；税前扣除上限 3,622.32 元/月'
+          + '（30,186 元缴存工资基数 × 12%，该基数自 2022 年起未调整；全年 43,467.84 元）'
       },
       supplementary_housing: { mode: 'monthly_amount', applicable: false }
     };

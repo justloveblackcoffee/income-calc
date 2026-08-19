@@ -66,11 +66,15 @@ A 2026 calculation uses the 2025.7–2026.6 period for January–June and the 20
 | Item | Rule | Default | Personal rate |
 |---|---|---:|---:|
 | Basic pension | ¥4,986–¥25,299, self-selected | ¥4,986 | 20% |
-| Basic medical | Fixed policy base | ¥4,986 | 9.5% |
-| Housing fund | Self-determined deposit, ≤ ¥50,000/month | ¥0 | Amount, not a rate |
+| Basic medical | Unified local standard, not self-selected | ¥4,986 | 10.4% from 2025.09 (9.5% before) |
+| Housing fund | Self-determined deposit, ≤ ¥50,000/month; pre-tax deduction capped at ¥3,622.32/month (¥43,467.84/year) | ¥0 | Amount, not a rate |
 | Unemployment / work injury / maternity | Not applicable | — | — |
 
-No 2026 figures have been published yet, so a 2026 calculation carries the 2025 period forward and every month is labelled **Carried over**.
+The housing fund deduction cap is derived rather than published as a single figure: Huzhou's flexible employment rules set a maximum deposit rate of 12% and the maximum deposit wage base is ¥30,186, giving ¥30,186 × 12% = ¥3,622.32 a month. That base has been held at ¥30,186 since the 2022 notice — unchanged in 2024, and confirmed again for 2025 in the Huzhou housing fund centre's annual report — so carrying it into 2026 is the well-supported assumption. Huzhou's own rules contain no "personal income × 12%" restriction. Deposits above the cap are still counted as money paid out, they are just not deducted before tax.
+
+Pension and medical follow two different rules. The pension base is chosen freely within the provincial limits and is editable month by month; medical is a unified local standard that does not follow the chosen pension base, so raising the pension base leaves medical untouched. Huzhou's published standard is ¥518.54 a month from 2025.09 (¥4,986 × 10.4%, of which 2% = ¥99.72 goes to the personal account), so 2025 is split into two periods: January–August and September–December.
+
+No 2026 figures have been published yet, so a 2026 calculation carries the 2025.09 period forward and every month is labelled **Carried over**.
 
 ---
 
@@ -192,4 +196,4 @@ Run `node tests.js` to check the engine after changing policy data.
 - Salary is a single monthly figure repeated across the year; per-month salaries and the separately taxed annual bonus are not supported
 - Withholding (累计预扣法) is not shown; only the annual settlement figure is calculated, with no prepaid tax, refund or top-up
 - Shanghai bases are derived from the current monthly salary rather than the previous year's average wage
-- For Huzhou flexible employment the deductible housing fund amount equals the deposited amount; if the local policy caps the deduction, tax will be understated
+- The Huzhou housing fund deduction cap (¥3,622.32/month) is derived from the 12% rate and the ¥30,186 deposit wage base rather than taken from an official 2026 figure; the base has not moved since 2022, but if Huzhou raises it the cap moves with it

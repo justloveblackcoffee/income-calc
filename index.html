@@ -114,7 +114,7 @@
       margin-bottom: 0.125rem;
     }
 
-    input[type="number"], select {
+    input[type="number"], input.num, select {
       width: 100%;
       padding: 0.4rem 0.6rem;
       border: 1px solid var(--border);
@@ -130,7 +130,7 @@
       cursor: not-allowed;
     }
 
-    input[type="number"]:focus, select:focus {
+    input[type="number"]:focus, input.num:focus, select:focus {
       outline: none;
       border-color: var(--primary-color);
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
@@ -167,7 +167,7 @@
 
     tr.total-row { font-weight: 700; background: #f1f5f9; }
 
-    td input[type="number"] {
+    td input[type="number"], td input.num {
       padding: 0.2rem 0.35rem;
       font-size: 0.78rem;
       text-align: right;

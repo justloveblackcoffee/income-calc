@@ -59,6 +59,8 @@
       naLabel: 'Not applicable',
       selfDeposit: 'Self-determined deposit',
       annualNote: 'Annual amounts are summed month by month, never one month × 12.',
+      amountDeductionCap: 'deductible ≤ {cap}/mo',
+      dedCappedNote: 'Deposited ¥{paid}; the amount above the deduction cap is not deductible.',
       secDeduct: 'Expenses, Tax-exempt Income & Pre-tax Deductions',
       deductIntro: 'Items deductible before tax under the applicable rules.',
       grpExpenses: 'Expenses',
@@ -190,6 +192,8 @@
       naLabel: '不适用',
       selfDeposit: '自主缴存',
       annualNote: '年度金额按每月金额逐月汇总，不使用某一个月乘以 12。',
+      amountDeductionCap: '税前扣除 ≤ {cap}/月',
+      dedCappedNote: '实际缴存 ¥{paid}，超出扣除上限的部分不可税前扣除。',
       secDeduct: '费用、免税收入和税前扣除',
       deductIntro: '各项按政策规定可在税前扣除的项目。',
       grpExpenses: '费用',
@@ -276,6 +280,7 @@
     incomeCategory: 'salary',
     baseOverrides: {},
     amountOverrides: {},
+    rateTexts: {},
     rateOverrides: {},
     rateStatus: null,
     lastRateUpdate: null
@@ -306,6 +311,30 @@
   function itemNote(item) {
     if (!item) return '';
     return state.lang === 'zh' ? (item.note_cn || '') : (item.note_en || '');
+  }
+
+  function escapeAttr(value) {
+    return String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  }
+
+  /* While a cell is being typed in, show exactly what the user typed; clamping happens on blur. */
+  function editableValue(store, storeKey, fallback) {
+    const raw = store[storeKey];
+    return escapeAttr(raw === undefined || raw === null ? fallback : raw);
+  }
+
+  /* A deposit can be legal yet only partly deductible, so the cell states both limits. */
+  function amountCapNote(monthEntry, itemKey) {
+    const item = (monthEntry.period.items || {})[itemKey];
+    const cap = item && item.maxDeductibleMonthlyAmount;
+    if (cap === undefined) return '';
+    return '<br>' + t().amountDeductionCap.replace('{cap}', money(cap));
+  }
+
+  function rateFieldValue(itemKey, current) {
+    const raw = state.rateTexts[itemKey];
+    if (raw !== undefined) return escapeAttr(raw);
+    return (current * 100).toFixed(2).replace(/\.?0+$/, '');
   }
 
   function badge(kind) {
@@ -405,7 +434,7 @@
           return `<td>${money(b.value, 0)}<span class="cell-note">${money(b.lower, 0)}–${money(b.upper, 0)}</span></td>`;
         }
         return `<td>
-          <input type="number" data-kind="base" data-ym="${m.ym}" data-key="${k}" value="${b.value}" min="${b.lower}" max="${b.upper}">
+          <input type="text" inputmode="decimal" class="num" data-kind="base" data-ym="${m.ym}" data-key="${k}" value="${editableValue(state.baseOverrides, m.ym + ':' + k, b.value)}">
           <span class="cell-note">${money(b.lower, 0)}–${money(b.upper, 0)} ${b.custom ? badge('custom') : ''}${b.adjusted ? badge('adjusted') : ''}</span>
         </td>`;
       }).join('');
@@ -415,8 +444,8 @@
         if (!a) return '<td>—</td>';
         if (a.adjusted) anyAdjusted = true;
         return `<td>
-          <input type="number" data-kind="amount" data-ym="${m.ym}" data-key="${k}" value="${a.value}" min="0" max="${a.max}">
-          <span class="cell-note">≤ ${money(a.max, 0)} ${a.custom ? badge('custom') : ''}${a.adjusted ? badge('adjusted') : ''}</span>
+          <input type="text" inputmode="decimal" class="num" data-kind="amount" data-ym="${m.ym}" data-key="${k}" value="${editableValue(state.amountOverrides, m.ym + ':' + k, a.value)}">
+          <span class="cell-note">≤ ${money(a.max, 0)}${amountCapNote(m, k)} ${a.custom ? badge('custom') : ''}${a.adjusted ? badge('adjusted') : ''}</span>
         </td>`;
       }).join('');
 
@@ -447,7 +476,7 @@
     if (item && item.rateEditable) {
       const current = result.segments.length ? result.segments[0].employee : (item.employeeRate || 0);
       const range = item.rateRange ? `<span class="cell-note">${percent(item.rateRange[0])}–${percent(item.rateRange[1])}</span>` : '';
-      return `<td><input type="number" step="0.1" data-kind="rate" data-key="${itemKey}" data-side="employee" value="${(current * 100).toFixed(2).replace(/\.?0+$/, '')}">${range}</td>`;
+      return `<td><input type="text" inputmode="decimal" class="num" data-kind="rate" data-key="${itemKey}" data-side="employee" value="${rateFieldValue(itemKey, current)}">${range}</td>`;
     }
     return `<td>${segmentText(result, 'employee')}</td>`;
   }
@@ -506,10 +535,17 @@
     const keys = ['pension', 'medical', 'unemployment', 'housing_fund', 'supplementary_housing'];
     const rows = keys
       .filter(k => annual.items[k].applicable && annual.items[k].deductibleAnnual > 0)
-      .map(k => `<div class="ded-row">
-        <span class="ded-label">${t().items[k]}</span>
-        <span class="ded-value">¥${money(annual.items[k].deductibleAnnual)}</span>
-      </div>`)
+      .map(k => {
+        const result = annual.items[k];
+        const capped = result.deductibleAnnual < result.employeeAnnual;
+        const note = capped
+          ? `<small>${t().dedCappedNote.replace('{paid}', money(result.employeeAnnual))}</small>`
+          : '';
+        return `<div class="ded-row">
+        <span class="ded-label">${t().items[k]}${note}</span>
+        <span class="ded-value">¥${money(result.deductibleAnnual)}</span>
+      </div>`;
+      })
       .join('');
     $('specialDeductions').innerHTML = `${rows}
       <div class="ded-row ded-total">
@@ -611,7 +647,19 @@
     </div>`;
   }
 
+  /* Re-rendering blurs whatever is focused; ignore the focusout it causes so we don't re-enter. */
+  let isRendering = false;
+
   function render() {
+    isRendering = true;
+    try {
+      renderAll();
+    } finally {
+      isRendering = false;
+    }
+  }
+
+  function renderAll() {
     const plan = currentPlan();
     const annual = E.computeAnnualContributions(plan, {
       monthlySalary: state.monthlySalaryCNY,
@@ -628,7 +676,10 @@
   function renderPreservingFocus() {
     const active = document.activeElement;
     const marker = active && active.dataset && active.dataset.kind
-      ? { kind: active.dataset.kind, ym: active.dataset.ym, key: active.dataset.key, side: active.dataset.side }
+      ? {
+        kind: active.dataset.kind, ym: active.dataset.ym, key: active.dataset.key, side: active.dataset.side,
+        start: active.selectionStart, end: active.selectionEnd
+      }
       : null;
     render();
     if (!marker) return;
@@ -639,8 +690,8 @@
     const next = document.querySelector(selector);
     if (next) {
       next.focus();
-      const len = next.value.length;
-      try { next.setSelectionRange(len, len); } catch (err) { /* number inputs may refuse */ }
+      const start = marker.start === null ? next.value.length : marker.start;
+      try { next.setSelectionRange(start, marker.end === null ? start : marker.end); } catch (err) { /* not all inputs expose a caret */ }
     }
   }
 
@@ -680,6 +731,7 @@
     state.baseOverrides = {};
     state.amountOverrides = {};
     state.rateOverrides = {};
+    state.rateTexts = {};
     render();
   });
 
@@ -721,6 +773,25 @@
     renderPreservingFocus();
   });
 
+  /* Typing is free-form; on blur the field snaps back to the value the engine actually used. */
+  $('monthlyTable').addEventListener('focusout', e => {
+    const el = e.target;
+    const kind = el.dataset && el.dataset.kind;
+    if (isRendering || (kind !== 'base' && kind !== 'amount')) return;
+    const store = kind === 'base' ? state.baseOverrides : state.amountOverrides;
+    const storeKey = el.dataset.ym + ':' + el.dataset.key;
+    const raw = store[storeKey];
+    if (raw === undefined) return;
+    if (String(raw).trim() === '' || Number.isNaN(Number(raw))) {
+      delete store[storeKey];
+    } else {
+      const month = currentPlan().find(m => String(m.ym) === el.dataset.ym);
+      const cell = month && (kind === 'base' ? month.bases : month.amounts)[el.dataset.key];
+      if (cell) store[storeKey] = cell.value;
+    }
+    render();
+  });
+
   /* Batch apply re-uses one month's values; each target month re-validates its own range. */
   $('monthlyTable').addEventListener('click', e => {
     const btn = e.target.closest('button[data-apply]');
@@ -746,12 +817,19 @@
     const el = e.target;
     if (el.dataset.kind !== 'rate') return;
     const key = el.dataset.key;
+    state.rateTexts[key] = el.value;
     const value = (parseFloat(el.value) || 0) / 100;
     const item = (E.resolvePeriod(state.profile, E.ym(state.year, 1), DATA).period.items || {})[key];
     state.rateOverrides[key] = state.rateOverrides[key] || {};
     state.rateOverrides[key].employee = value;
     if (item && item.linkedRates) state.rateOverrides[key].employer = value;
     renderPreservingFocus();
+  });
+
+  $('contributions').addEventListener('focusout', e => {
+    if (isRendering || !e.target.dataset || e.target.dataset.kind !== 'rate') return;
+    delete state.rateTexts[e.target.dataset.key];
+    render();
   });
 
   $('languageSelect').addEventListener('change', () => {

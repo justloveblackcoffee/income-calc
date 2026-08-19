@@ -211,7 +211,11 @@
           base = (monthEntry.amounts[itemKey] || { value: 0 }).value;
           const amount = round2(base);
           employeeAnnual += amount;
-          if (item.deductible) deductibleAnnual += amount;
+          /* Deposits may legally exceed what tax rules allow to be deducted (e.g. Huzhou). */
+          const deductibleCap = item.maxDeductibleMonthlyAmount;
+          if (item.deductible) {
+            deductibleAnnual += deductibleCap === undefined ? amount : Math.min(amount, deductibleCap);
+          }
           segments.push({ month: monthEntry.month, employer: 0, employee: null, amount });
           return;
         }
