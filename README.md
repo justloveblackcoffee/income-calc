@@ -92,6 +92,7 @@ base = min(max(monthly salary, lower limit), upper limit)
 - Housing fund base defaults to the upper limit
 - Any month can be edited; the value is clamped to that month's range and flagged when adjusted
 - Rates the policy lets the user choose (e.g. Shanghai flexible housing fund, 10%–24%) are editable too
+- Each month has a **领取失业保险金 / on unemployment benefits** tick box. While a person draws unemployment benefits the unemployment insurance fund pays their basic medical insurance premium and the individual pays nothing (社会保险法 第四十八条), so ticked months contribute nothing to the annual medical total or to its pre-tax deduction; the contributions table names the months that were left out
 
 The supplementary housing fund defaults to 0% and is filled in only when it applies. Corporate pension and group commercial insurance are not part of the contributions module: a corporate pension is entered as a deductible annual amount under other deductions, and group commercial insurance is out of scope.
 

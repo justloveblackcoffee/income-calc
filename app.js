@@ -45,6 +45,10 @@
       btnForward: '→ later months',
       btnYear: '→ whole year',
       btnReset: 'Restore defaults',
+      thBenefit: 'On unemployment benefits',
+      benefitLabel: 'Drawing benefits',
+      hintBenefit: 'Tick the months you are drawing unemployment benefits: the unemployment insurance fund pays your medical insurance for those months, so they are excluded from the annual total.',
+      waivedMonthsNote: 'Months {months} ({count} in total) are paid by the unemployment insurance fund and are not included.',
       hintReadonlyBases: 'Bases are derived from the monthly salary and each month’s limits, so they are read-only.',
       hintEditableBases: 'Editable months are validated against that month’s policy range. Editing one month affects only that month.',
       warnAdjusted: 'Some values fell outside the allowed range for their month and were adjusted.',
@@ -178,6 +182,10 @@
       btnForward: '→ 后续月份',
       btnYear: '→ 全年',
       btnReset: '恢复默认',
+      thBenefit: '领取失业保险金',
+      benefitLabel: '领取中',
+      hintBenefit: '勾选正在领取失业保险金的月份：这些月份的基本医疗保险费由失业保险基金支付，个人不缴纳，因此不计入全年合计。',
+      waivedMonthsNote: '{months} 月由失业保险基金代缴（共 {count} 个月），未计入合计。',
       hintReadonlyBases: '企业职工基数由月工资和当月上下限自动确定，不可修改。',
       hintEditableBases: '可编辑月份按当月政策范围校验；修改一个月只影响该月。',
       warnAdjusted: '部分数值超出当月政策允许范围，已自动调整到合法范围内。',
@@ -280,6 +288,7 @@
     incomeCategory: 'salary',
     baseOverrides: {},
     amountOverrides: {},
+    benefitMonths: {},
     rateTexts: {},
     rateOverrides: {},
     rateStatus: null,
@@ -372,7 +381,8 @@
     return E.buildYearPlan(state.profile, state.year, {
       monthlySalary: state.monthlySalaryCNY,
       baseOverrides: state.baseOverrides,
-      amountOverrides: state.amountOverrides
+      amountOverrides: state.amountOverrides,
+      benefitMonths: state.benefitMonths
     }, DATA);
   }
 
@@ -415,6 +425,8 @@
     /* The batch-apply column only makes sense when at least one field can be edited. */
     const anyEditable = plan.some(m =>
       Object.keys(m.bases).some(k => m.bases[k].editable) || Object.keys(m.amounts).length > 0);
+    /* Only profiles whose policy waives items while on unemployment benefits get the tick box. */
+    const anyBenefit = plan.some(m => m.benefitEligible);
     let anyAdjusted = false;
 
     const head = `<tr>
@@ -422,6 +434,7 @@
       <th style="text-align:left;">${t().thPolicy}</th>
       ${groupKeys.map(k => `<th>${t().groups[k] || k}</th>`).join('')}
       ${amountKeys.map(k => `<th>${t().amountLabels[k] || t().items[k] || k}</th>`).join('')}
+      ${anyBenefit ? `<th>${t().thBenefit}</th>` : ''}
       ${anyEditable ? `<th>${t().thActions}</th>` : ''}
     </tr>`;
 
@@ -449,6 +462,10 @@
         </td>`;
       }).join('');
 
+      const benefitCell = anyBenefit ? `<td>
+        ${m.benefitEligible ? `<label class="tick"><input type="checkbox" data-kind="benefit" data-ym="${m.ym}"${m.onBenefit ? ' checked' : ''}> ${t().benefitLabel}</label>` : '—'}
+      </td>` : '';
+
       const actions = anyEditable ? `<td>
         <button type="button" class="btn btn-ghost btn-mini" data-apply="forward" data-month="${m.month}">${t().btnForward}</button>
         <button type="button" class="btn btn-ghost btn-mini" data-apply="year" data-month="${m.month}">${t().btnYear}</button>
@@ -457,12 +474,13 @@
       return `<tr>
         <td>${state.year}.${String(m.month).padStart(2, '0')}</td>
         <td style="text-align:left;">${badge(m.carried ? 'carried' : 'official')}</td>
-        ${cells}${amountCells}${actions}
+        ${cells}${amountCells}${benefitCell}${actions}
       </tr>`;
     }).join('');
 
     $('monthlyTable').innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
-    $('monthlyHint').textContent = anyEditable ? t().hintEditableBases : t().hintReadonlyBases;
+    $('monthlyHint').textContent = (anyEditable ? t().hintEditableBases : t().hintReadonlyBases)
+      + (anyBenefit ? ' ' + t().hintBenefit : '');
     $('resetMonthly').hidden = !anyEditable;
     $('monthlyWarning').hidden = !anyAdjusted;
     $('monthlyWarning').textContent = t().warnAdjusted;
@@ -489,13 +507,33 @@
       .join('<br>');
   }
 
+  /* Collapse a month list into ranges: [1,2,3,7] -> "1–3", "7". */
+  function monthRanges(months) {
+    const out = [];
+    months.forEach(m => {
+      const last = out[out.length - 1];
+      if (last && last.to === m - 1) last.to = m;
+      else out.push({ from: m, to: m });
+    });
+    return out.map(r => (r.from === r.to ? `${r.from}` : `${r.from}–${r.to}`))
+      .join(state.lang === 'zh' ? '、' : ', ');
+  }
+
+  function waivedNote(result) {
+    if (!result.waivedMonths || !result.waivedMonths.length) return '';
+    const text = t().waivedMonthsNote
+      .replace('{months}', monthRanges(result.waivedMonths))
+      .replace('{count}', result.waivedMonths.length);
+    return `<span class="cell-note">${text}</span>`;
+  }
+
   function renderContributions(annual) {
     const isFlexible = DATA.profiles[state.profile].employment === 'flexible';
     const rows = DATA.itemOrder.map(key => {
       const result = annual.items[key];
       const name = t().items[key];
       const note = itemNote(result.item);
-      const noteHtml = note ? `<span class="cell-note">${note}</span>` : '';
+      const noteHtml = (note ? `<span class="cell-note">${note}</span>` : '') + waivedNote(result);
       if (!result.applicable) {
         const span = isFlexible ? 3 : 5;
         return `<tr><td>${name}${noteHtml}</td><td colspan="${span}" style="text-align:center;color:var(--text-secondary);">${t().naLabel}</td></tr>`;
@@ -730,6 +768,7 @@
     state.profile = $('profile').value;
     state.baseOverrides = {};
     state.amountOverrides = {};
+    state.benefitMonths = {};
     state.rateOverrides = {};
     state.rateTexts = {};
     render();
@@ -739,6 +778,7 @@
     state.year = parseInt($('year').value, 10);
     state.baseOverrides = {};
     state.amountOverrides = {};
+    state.benefitMonths = {};
     render();
   });
 
@@ -758,6 +798,7 @@
   $('resetMonthly').addEventListener('click', () => {
     state.baseOverrides = {};
     state.amountOverrides = {};
+    state.benefitMonths = {};
     render();
   });
 
@@ -771,6 +812,14 @@
       return;
     }
     renderPreservingFocus();
+  });
+
+  $('monthlyTable').addEventListener('change', e => {
+    const el = e.target;
+    if (!el.dataset || el.dataset.kind !== 'benefit') return;
+    if (el.checked) state.benefitMonths[el.dataset.ym] = true;
+    else delete state.benefitMonths[el.dataset.ym];
+    render();
   });
 
   /* Typing is free-form; on blur the field snaps back to the value the engine actually used. */
@@ -809,6 +858,10 @@
       Object.keys(source.amounts).forEach(k => {
         state.amountOverrides[m.ym + ':' + k] = source.amounts[k].value;
       });
+      if (m.benefitEligible) {
+        if (source.onBenefit) state.benefitMonths[m.ym] = true;
+        else delete state.benefitMonths[m.ym];
+      }
     });
     render();
   });

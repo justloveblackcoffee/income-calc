@@ -107,6 +107,46 @@ check('housing fund rate override is applied',
 check('rate above the allowed range is clamped',
   shRates.items.supplementary_housing.employeeAnnual, E.round2(E.round2(37302 * 0.06) * 6 + E.round2(37731 * 0.06) * 6));
 
+/*
+ * Months spent drawing unemployment benefits: the fund pays basic medical insurance, so those
+ * months drop out of the medical total while every other item is unaffected.
+ */
+const onBenefit = { '202601': true, '202602': true, '202603': true };
+const huzhouBenefit = E.buildYearPlan('huzhou_flexible', 2026, {
+  monthlySalary: 20000,
+  benefitMonths: onBenefit
+});
+check('flexible-employment months can be marked as drawing benefits',
+  [huzhouBenefit[0].benefitEligible, huzhouBenefit[0].onBenefit, huzhouBenefit[3].onBenefit],
+  [true, true, false]);
+const huzhouBenefitAnnual = E.computeAnnualContributions(huzhouBenefit, { monthlySalary: 20000 });
+check('medical skips the three months covered by the unemployment insurance fund',
+  E.round2(huzhouBenefitAnnual.items.medical.employeeAnnual), E.round2(518.54 * 9));
+check('the waived months are reported so the UI can explain the gap',
+  huzhouBenefitAnnual.items.medical.waivedMonths, [1, 2, 3]);
+check('waived medical is not claimed as a pre-tax deduction either',
+  E.round2(huzhouBenefitAnnual.items.medical.deductibleAnnual), E.round2(518.54 * 9));
+check('pension is unaffected by the benefit months',
+  huzhouBenefitAnnual.items.pension.employeeAnnual, huzhouAnnual.items.pension.employeeAnnual);
+
+/* Shanghai flexible employment waives the same item, at its own 10% rate. */
+const shBenefit = E.computeAnnualContributions(
+  E.buildYearPlan('shanghai_flexible', 2026, { monthlySalary: 20000, benefitMonths: { '202606': true } }),
+  { monthlySalary: 20000 });
+check('Shanghai flexible medical drops the single benefit month',
+  [shBenefit.items.medical.waivedMonths, E.round2(shBenefit.items.medical.employeeAnnual)],
+  [[6], E.round2(7460 * 0.10 * 5 + 7546 * 0.10 * 6)]);
+
+/* Employees are not eligible, so ticking a month must change nothing. */
+const employeeBenefit = E.buildYearPlan('shanghai', 2026, { monthlySalary: 20000, benefitMonths: onBenefit });
+check('employee profiles have no benefit waiver',
+  employeeBenefit.every(m => !m.benefitEligible && !m.onBenefit), true);
+check('employee medical is unchanged by benefit months',
+  E.computeAnnualContributions(employeeBenefit, { monthlySalary: 20000 }).items.medical.employeeAnnual,
+  E.computeAnnualContributions(
+    E.buildYearPlan('shanghai', 2026, { monthlySalary: 20000 }), { monthlySalary: 20000 }
+  ).items.medical.employeeAnnual);
+
 /* Income categories drive expenses and the tax-exempt part of author's remuneration. */
 check('salary has no expense deduction', E.incomeAdjustments('salary', 100000), { expenses: 0, taxExemptIncome: 0 });
 check('labor remuneration deducts 20% as expenses',

@@ -23,11 +23,29 @@
  *   Huzhou flexible employment housing fund pilot:
  *     https://zc.51shebao.com/detail/829767
  *     https://zj.people.com.cn/n2/2023/0830/c186327-40550597.html
+ *   Medical insurance while drawing unemployment benefits (社会保险法 第四十八条): a person
+ *   drawing unemployment benefits stays in employee basic medical insurance, the premium is
+ *   paid out of the unemployment insurance fund, and the individual pays nothing:
+ *     https://www.gov.cn/jrzg/2010-10/28/content_1732938.htm
+ *
+ * A period may also declare `unemploymentBenefit`, which lists the items the unemployment
+ * insurance fund pays on the person's behalf for any month they are drawing benefits. Those
+ * months are marked in the monthly table and contribute nothing to the annual total.
  *
  * Not implemented yet: field-level inheritance (taking newly published bases while carrying
  * older rates forward) — a month either matches a period or carries the whole previous one.
  */
 (function (root) {
+  /* While a person draws unemployment benefits, the unemployment insurance fund pays their
+     basic medical insurance premium and they pay nothing themselves (社会保险法 第四十八条).
+     Flexible-employment periods carry this so those months can be excluded from the total. */
+  const UNEMPLOYMENT_BENEFIT_WAIVER = {
+    waivedItems: ['medical'],
+    note_en: 'Months on unemployment benefits: medical insurance is paid by the unemployment '
+      + 'insurance fund, so nothing is personally payable.',
+    note_cn: '领取失业保险金期间，基本医疗保险费由失业保险基金支付，个人不缴纳。'
+  };
+
   const POLICY_DATA = {
     profiles: {
       shanghai: {
@@ -99,6 +117,7 @@
             si: { lower: 7460, upper: 37302, defaultRule: 'lower', editable: true },
             hf: { lower: 2690, upper: 37302, defaultRule: 'upper', editable: true }
           },
+          unemploymentBenefit: UNEMPLOYMENT_BENEFIT_WAIVER,
           items: shanghaiFlexibleItems()
         },
         {
@@ -110,6 +129,7 @@
             si: { lower: 7546, upper: 37731, defaultRule: 'lower', editable: true },
             hf: { lower: 2740, upper: 37731, defaultRule: 'upper', editable: true }
           },
+          unemploymentBenefit: UNEMPLOYMENT_BENEFIT_WAIVER,
           items: shanghaiFlexibleItems()
         }
       ],
@@ -124,6 +144,7 @@
             pension: { lower: 4986, upper: 25299, defaultRule: 'lower', editable: true },
             medical: { lower: 4986, upper: 4986, defaultRule: 'lower', editable: false }
           },
+          unemploymentBenefit: UNEMPLOYMENT_BENEFIT_WAIVER,
           items: huzhouFlexibleItems(0.095)
         },
         {
@@ -135,6 +156,7 @@
             pension: { lower: 4986, upper: 25299, defaultRule: 'lower', editable: true },
             medical: { lower: 4986, upper: 4986, defaultRule: 'lower', editable: false }
           },
+          unemploymentBenefit: UNEMPLOYMENT_BENEFIT_WAIVER,
           items: huzhouFlexibleItems(0.104)
         }
       ]

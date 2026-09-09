@@ -85,6 +85,7 @@
     const monthlySalary = opts.monthlySalary || 0;
     const baseOverrides = opts.baseOverrides || {};
     const amountOverrides = opts.amountOverrides || {};
+    const benefitMonths = opts.benefitMonths || {};
     const months = [];
 
     for (let m = 1; m <= MONTHS; m++) {
@@ -141,6 +142,10 @@
         amounts[itemKey] = { value: round2(value), max, defaultValue: fallback, custom, adjusted };
       });
 
+      /* Months spent drawing unemployment benefits: the fund pays the listed items instead. */
+      const waiver = period.unemploymentBenefit;
+      const onBenefit = !!waiver && !!benefitMonths[key];
+
       months.push({
         month: m,
         ym: key,
@@ -149,7 +154,10 @@
         official: !!period.official && !resolved.carried,
         source: period.source,
         bases,
-        amounts
+        amounts,
+        benefitEligible: !!waiver,
+        onBenefit,
+        waivedItems: onBenefit ? (waiver.waivedItems || []) : []
       });
     }
     return months;
@@ -190,6 +198,7 @@
       let applicable = false;
       let mode = null;
       let sampleItem = null;
+      const waivedMonths = [];
 
       plan.forEach(monthEntry => {
         const item = (monthEntry.period.items || {})[itemKey];
@@ -197,6 +206,12 @@
         applicable = true;
         sampleItem = item;
         mode = item.mode || 'rate';
+
+        /* Paid by the unemployment insurance fund this month, so nothing is personally due. */
+        if ((monthEntry.waivedItems || []).indexOf(itemKey) !== -1) {
+          waivedMonths.push(monthEntry.month);
+          return;
+        }
 
         if (item.mode === 'employer_annual_amount') {
           const annual = opts.commercialAnnualAmount !== undefined
@@ -242,6 +257,7 @@
         employerAnnual: round2(employerAnnual),
         employeeAnnual: round2(employeeAnnual),
         deductibleAnnual: round2(deductibleAnnual),
+        waivedMonths,
         segments: collapseSegments(segments)
       };
     });
